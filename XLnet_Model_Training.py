@@ -11,6 +11,8 @@ from transformers import AdamW, XLNetTokenizer, XLNetModel, XLNetLMHeadModel, XL
 from keras.preprocessing.sequence import pad_sequences
 from sklearn.model_selection import train_test_split
 import numpy as np
+from sklearn.metrics import confusion_matrix
+import numpy as np
 import pandas as pd
 from tqdm import tqdm, trange
 import matplotlib.pyplot as plt
@@ -457,10 +459,7 @@ test_to_csv[["id", "toxic", "severe_toxic", "obscene", "threat", "insult", "iden
 
 pred = np.round(pred_probs)
 
-pred.shape
 
-import numpy as np
-from sklearn.metrics import confusion_matrix
 
 y_true = np.array([[0,0,1], [1,1,0],[0,1,0]])
 y_pred = pred

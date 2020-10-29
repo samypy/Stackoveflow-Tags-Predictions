@@ -1,5 +1,6 @@
 
 import pandas as pd
+import re
 
 quest_data = pd.read_csv('/content/drive/My Drive/Stack Overflow/Questions.csv',encoding='latin-1')
 
@@ -24,7 +25,7 @@ data.reset_index(inplace=True)
 
 data = data[['Id', 'Title', 'Body','Tag']]
 
-import re
+
 def cleanhtml(raw_html):
   cleanr = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
   cleantext = re.sub(cleanr, '', raw_html)

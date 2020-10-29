@@ -1,17 +1,10 @@
-import os
-import math
 import torch
 from torch.nn import BCEWithLogitsLoss
-from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
-from transformers import AdamW, XLNetTokenizer, XLNetModel, XLNetLMHeadModel, XLNetConfig
+from transformers import XLNetTokenizer, XLNetModel
 from keras.preprocessing.sequence import pad_sequences
-from sklearn.model_selection import train_test_split
 import numpy as np
-import pandas as pd
-from tqdm import tqdm, trange
-from flask import Flask, redirect, url_for, request, render_template, jsonify
-from werkzeug.utils import secure_filename
-from gevent.pywsgi import WSGIServer
+from flask import Flask, request, render_template
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -104,9 +97,6 @@ class XLNetForMultiLabelSequenceClassification(torch.nn.Module):
 
 model = XLNetForMultiLabelSequenceClassification(num_labels=30000)
 
-# model = XLNetForMultiLabelSequenceClassification(num_labels=len(test_set[['android', 'c#', 'c++', 'html', 'ios', 'java','javascript', 'jquery', 'php', 'python']]))
-# model = torch.nn.DataParallel(model)
-# model.cuda()
 
 
 if torch.cuda.is_available():
