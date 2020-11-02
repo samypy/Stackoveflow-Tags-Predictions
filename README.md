@@ -9,7 +9,8 @@ Important Note:  Model was trained with top 10 most occurring tags. You can exap
  https://drive.google.com/file/d/1CusX1nxFgASPLqly2WMgfYy-AokzBeh9/view?usp=sharing
  
  Please use below link to download pretrained model and save it in project folder.
- https://drive.google.com/file/d/1ecDUPLZ8R4hYM-yhRrBif-LTi_2QPMN1/view?usp=sharing
+ XLnet Model : https://drive.google.com/file/d/1ecDUPLZ8R4hYM-yhRrBif-LTi_2QPMN1/view?usp=sharing  
+ Bidirectional LSTM with Glove : https://drive.google.com/file/d/1wFcKsztRt3LT7IM2eM0iY36PFhDFfABf/view?usp=sharing  
  
  # Model comparision:
  
