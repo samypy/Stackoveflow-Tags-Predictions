@@ -27,7 +27,7 @@ Important Note:  Model was trained with top 10 most occurring tags. You can exap
            7       0.06      0.01      0.02       981
            8       0.27      0.14      0.19      1279
            9       0.08      0.04      0.05      1063
-  
+                                                      
    micro avg       0.16      0.12      0.14     11563  
    macro avg       0.13      0.11      0.10     11563  
 weighted avg       0.14      0.12      0.12     11563  
@@ -49,7 +49,7 @@ weighted avg       0.14      0.12      0.12     11563
            7       0.92      0.75      0.82      1077
            8       0.89      0.95      0.92      1413
            9       0.99      0.94      0.96       883  
-  
+                                                      
    micro avg       0.91      0.85      0.88     11684  
    macro avg       0.91      0.85      0.88     11684  
 weighted avg       0.91      0.85      0.88     11684  
