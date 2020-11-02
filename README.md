@@ -15,36 +15,36 @@ Important Note:  Model was trained with top 10 most occurring tags. You can exap
  
  Bidirectional LSTM with pre trained Glove embeddings:
  
- Confusion matrix for label android:
-[[5527 3224]
- [ 671  578]]
-Confusion matrix for label c#:
-[[7957  775]
- [1166  102]]
-Confusion matrix for label c++:
-[[8986  341]
- [ 639   34]]
-Confusion matrix for label html:
-[[8701  207]
- [1078   14]]
-Confusion matrix for label ios:
-[[8880  364]
- [ 737   19]]
-Confusion matrix for label java:
-[[7901  614]
- [1371  114]]
-Confusion matrix for label javascript:
-[[7185 1098]
- [1384  333]]
-Confusion matrix for label jquery:
-[[8803  216]
- [ 967   14]]
-Confusion matrix for label php:
-[[8221  500]
- [1094  185]]
-Confusion matrix for label python:
-[[8443  494]
- [1019   44]]
+ Confusion matrix for label android:  
+[[5527 3224]  
+ [ 671  578]]  
+Confusion matrix for label c#:  
+[[7957  775]  
+ [1166  102]]  
+Confusion matrix for label c++:  
+[[8986  341]  
+ [ 639   34]]  
+Confusion matrix for label html:  
+[[8701  207]  
+ [1078   14]]  
+Confusion matrix for label ios:  
+[[8880  364]  
+ [ 737   19]]  
+Confusion matrix for label java:  
+[[7901  614]  
+ [1371  114]]  
+Confusion matrix for label javascript:  
+[[7185 1098]  
+ [1384  333]]  
+Confusion matrix for label jquery:  
+[[8803  216]  
+ [ 967   14]]  
+Confusion matrix for label php:  
+[[8221  500]  
+ [1094  185]]  
+Confusion matrix for label python:  
+[[8443  494]  
+ [1019   44]]  
               precision    recall  f1-score   support
 
            0       0.15      0.46      0.23      1249
