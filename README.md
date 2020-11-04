@@ -60,4 +60,23 @@ weighted avg       0.91      0.85      0.88     11684
 
 We are achieving better roc_auc score with XLnet model and hence we have selected it solve our problem statement.  
  
- 
+# Update:
+I managed to improve the model using BERT classifier.
+
+INFO:tensorflow:***** Eval results *****  
+INFO:tensorflow:  0 = 0.99351746  
+INFO:tensorflow:  1 = 0.9895155  
+INFO:tensorflow:  2 = 0.9907474  
+INFO:tensorflow:  3 = 0.9593273  
+INFO:tensorflow:  4 = 0.99575275  
+INFO:tensorflow:  5 = 0.98171824  
+INFO:tensorflow:  6 = 0.974356  
+INFO:tensorflow:  7 = 0.97951746  
+INFO:tensorflow:  8 = 0.99159163  
+INFO:tensorflow:  9 = 0.993785  
+INFO:tensorflow:  eval_loss = 0.076690935  
+INFO:tensorflow:  global_step = 55623  
+INFO:tensorflow:  loss = 0.07669059  
+
+# roc_auc_score : 0.9842731546098449
+
