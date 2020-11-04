@@ -61,7 +61,7 @@ weighted avg       0.91      0.85      0.88     11684
 We are achieving better roc_auc score with XLnet model and hence we have selected it solve our problem statement.  
  
 # Update:
-I managed to improve the model using BERT classifier.
+I managed to improve the model using BERT classifier. (Credits : https://medium.com/@javaid.nabi/building-a-multi-label-text-classifier-using-bert-and-tensorflow-f188e0ecdc5d)  
 
 INFO:tensorflow:***** Eval results *****  
 INFO:tensorflow:  0 = 0.99351746  
