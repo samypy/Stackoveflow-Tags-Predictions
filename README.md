@@ -80,3 +80,4 @@ INFO:tensorflow:  loss = 0.07669059
 
 # roc_auc_score : 0.9842731546098449
 
+https://drive.google.com/file/d/1yuvcfuWIke32SIUUu2yx2uDS60yZEt80/view?usp=sharing
