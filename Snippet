@@ -13,8 +13,14 @@ for row in source_sheet.iter_rows(min_row=1, max_row=source_sheet.max_row,
                                   min_col=1, max_col=source_sheet.max_column):
     for cell in row:
         target_cell = target_sheet.cell(row=cell.row, column=cell.column)
-        target_cell._style = cell._style
+        target_cell.font = cell.font.copy()
+        target_cell.border = cell.border.copy()
+        target_cell.fill = cell.fill.copy()
+        target_cell.number_format = cell.number_format
+        target_cell.protection = cell.protection.copy()
+        target_cell.alignment = cell.alignment.copy()
 
 # Save the target workbook
 target_workbook.save('target_file.xlsx')
+
 
