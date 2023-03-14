@@ -1,0 +1,28 @@
+import openpyxl
+from openpyxl.styles import colors, Font, Color
+
+# Load the source and destination Excel files
+source_wb = openpyxl.load_workbook('source.xlsx')
+dest_wb = openpyxl.load_workbook('destination.xlsx')
+
+# Select the source and destination sheets
+source_ws = source_wb['Sheet1']
+dest_ws = dest_wb['Sheet1']
+
+# Copy the formatting from the source sheet to the destination sheet
+for row in source_ws.iter_rows():
+    for cell in row:
+        dest_cell = dest_ws[cell.coordinate]
+        dest_cell.font = Font(color=cell.font.color.rgb if cell.font.color is not None else None,
+                              name=cell.font.name,
+                              size=cell.font.size,
+                              bold=cell.font.bold,
+                              italic=cell.font.italic,
+                              underline=cell.font.underline)
+        dest_cell.fill = cell.fill
+        dest_cell.border = cell.border
+        dest_cell.alignment = cell.alignment
+        dest_cell.number_format = cell.number_format
+
+# Save the changes to the destination Excel file
+dest_wb.save('destination.xlsx')
