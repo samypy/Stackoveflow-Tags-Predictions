@@ -1,4 +1,6 @@
 import openpyxl
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import NamedStyle
 
 # Open the source and target Excel files
 source_workbook = openpyxl.load_workbook('source_file.xlsx')
@@ -12,13 +14,19 @@ target_sheet = target_workbook.active
 for row in source_sheet.iter_rows(min_row=1, max_row=source_sheet.max_row, 
                                   min_col=1, max_col=source_sheet.max_column):
     for cell in row:
-        target_cell = target_sheet.cell(row=cell.row, column=cell.column)
-        target_cell.font = cell.font.copy()
-        target_cell.border = cell.border.copy()
-        target_cell.fill = cell.fill.copy()
-        target_cell.number_format = cell.number_format
-        target_cell.protection = cell.protection.copy()
-        target_cell.alignment = cell.alignment.copy()
+        column_letter = get_column_letter(cell.column)
+        style_name = f'{source_sheet.title}!{column_letter}{cell.row}'
+        if style_name in source_sheet.parent.named_styles:
+            style = NamedStyle(style_name)
+            style.font = cell.font
+            style.border = cell.border
+            style.fill = cell.fill
+            style.number_format = cell.number_format
+            style.protection = cell.protection
+            style.alignment = cell.alignment
+            target_sheet.column_dimensions[column_letter].width = source_sheet.column_dimensions[column_letter].width
+            target_sheet.row_dimensions[cell.row].height = source_sheet.row_dimensions[cell.row].height
+            target_sheet[cell.coordinate]._style = style
 
 # Save the target workbook
 target_workbook.save('target_file.xlsx')
