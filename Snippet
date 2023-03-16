@@ -52,3 +52,27 @@ for page in pdf_file:
 # Close the PDF file
 pdf_file.close()
 
+import fitz
+
+# Open the PDF file
+pdf_file = fitz.open('example.pdf')
+
+# Iterate over each page
+for page in pdf_file:
+    # Extract the tables from the page
+    tables = page.extract_tables()
+    
+    # Iterate over each table
+    for table in tables:
+        # Extract the table contents
+        table_text = []
+        for row in table:
+            row_text = [str(cell) for cell in row]
+            table_text.append(row_text)
+            
+        # Print the table contents
+        print(table_text)
+
+# Close the PDF file
+pdf_file.close()
+
