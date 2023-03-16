@@ -31,4 +31,24 @@ for row in source_sheet.iter_rows(min_row=1, max_row=source_sheet.max_row,
 # Save the target workbook
 target_workbook.save('target_file.xlsx')
 
+import fitz
+
+# Open the PDF file
+pdf_file = fitz.open('example.pdf')
+
+# Iterate over each page
+for page in pdf_file:
+    # Iterate over each table on the page
+    for table in page.get_tables():
+        # Extract the table contents
+        table_text = []
+        for row in table:
+            row_text = [cell.get_text("text") for cell in row]
+            table_text.append(row_text)
+            
+        # Print the table contents
+        print(table_text)
+
+# Close the PDF file
+pdf_file.close()
 
