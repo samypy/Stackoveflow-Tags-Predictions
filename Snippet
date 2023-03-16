@@ -93,3 +93,38 @@ for page in pdf_file:
 
 # Close the PDF file
 pdf_file.close()
+
+import fitz
+import pandas as pd
+
+# Open the PDF file
+pdf_file = fitz.open('example.pdf')
+
+# Initialize a Pandas DataFrame to store the tables
+tables_df = pd.DataFrame()
+
+# Iterate over each page
+for page in pdf_file:
+    # Extract the page content
+    page_content = page.get_text("text")
+
+    # Split the page content into rows and columns
+    rows = page_content.split('\n')
+    table = []
+    for row in rows:
+        columns = row.split('\t')
+        table.append(columns)
+
+    # Convert the table contents to a Pandas DataFrame
+    table_df = pd.DataFrame(table[1:], columns=table[0])
+
+    # Append the table to the master DataFrame
+    tables_df = pd.concat([tables_df, table_df], axis=0, ignore_index=True)
+
+# Close the PDF file
+pdf_file.close()
+
+# Write the tables to an Excel file
+with pd.ExcelWriter('output.xlsx') as writer:
+    tables_df.to_excel(writer, index=False)
+
