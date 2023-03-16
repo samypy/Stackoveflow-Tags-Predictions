@@ -76,3 +76,20 @@ for page in pdf_file:
 # Close the PDF file
 pdf_file.close()
 
+# Iterate over each page
+for page in pdf_file:
+    # Extract the page content
+    page_content = page.get_text("text")
+    
+    # Split the page content into rows and columns
+    rows = page_content.split('\n')
+    table = []
+    for row in rows:
+        columns = row.split('\t')
+        table.append(columns)
+    
+    # Print the table contents
+    print(table)
+
+# Close the PDF file
+pdf_file.close()
