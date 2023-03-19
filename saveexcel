@@ -262,3 +262,43 @@ im_output.save('ext_im-1.jpg')
 factor = 1.5## brightens the image
 im_output = enhancer.enhance(factor)
 im_output.save('ext_im-2.jpg')
+
+
+import cv2
+import numpy as np
+
+# Load the image
+img = cv2.imread('image.jpg')
+
+# Convert the image to grayscale
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Apply binary thresholding to the image
+ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+# Apply morphological operations to remove noise and smooth the image
+kernel = np.ones((3,3), np.uint8)
+closing = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
+
+# Find the contours in the image
+contours, hierarchy = cv2.findContours(closing, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+# Iterate through the contours to find the largest rectangle
+largest_area = 0
+largest_rect = None
+for contour in contours:
+    area = cv2.contourArea(contour)
+    if area > largest_area:
+        perimeter = cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
+        if len(approx) == 4:
+            largest_area = area
+            largest_rect = approx
+
+# Draw the largest rectangle on the image
+cv2.drawContours(img, [largest_rect], 0, (0, 255, 0), 2)
+
+# Display the image with the largest rectangle drawn on it
+cv2.imshow('Image', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
