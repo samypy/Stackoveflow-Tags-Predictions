@@ -18,9 +18,10 @@ if not excel_files:
     print("No excel files found in directory.")
     exit()
 
-# read first excel file to get number of columns
+# read first excel file to get number of columns and headers
 df = pd.read_excel(excel_files[0])
 num_cols = len(df.columns)
+headers = list(df.columns)
 
 # loop through excel files and merge them
 for i, excel_file in enumerate(excel_files):
@@ -32,6 +33,11 @@ for i, excel_file in enumerate(excel_files):
         print(f"Skipping {excel_file} because number of columns does not match.")
         continue
     
+    # skip header rows for all files except the first one
+    if i > 0:
+        df = df.iloc[1:]
+        df.columns = headers
+    
     # merge dataframes
     if i == 0:
         merged_df = df
@@ -41,3 +47,4 @@ for i, excel_file in enumerate(excel_files):
 # save merged dataframe to excel file
 merged_df.to_excel(os.path.join(directory_path, "merged.xlsx"), index=False)
 print("Merged file saved to directory.")
+
