@@ -48,3 +48,89 @@ for i, excel_file in enumerate(excel_files):
 merged_df.to_excel(os.path.join(directory_path, "merged.xlsx"), index=False)
 print("Merged file saved to directory.")
 
+
+
+import tkinter as tk
+from tkinter import filedialog
+import fitz
+
+class PDFProcessor:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("PDF Processor")
+        self.master.geometry("500x300")
+        
+        # create log text widget
+        self.log_text = tk.Text(self.master, height=10)
+        self.log_text.pack(fill=tk.BOTH, expand=True)
+        
+        # create select pdf button
+        self.pdf_button = tk.Button(self.master, text="Select PDF", command=self.select_pdf)
+        self.pdf_button.pack(pady=10)
+        
+        # create select output folder button
+        self.output_button = tk.Button(self.master, text="Select Output Folder", command=self.select_output)
+        self.output_button.pack(pady=10)
+        
+        # create process button
+        self.process_button = tk.Button(self.master, text="Process", command=self.process_pdf)
+        self.process_button.pack(pady=10)
+        
+        # initialize variables
+        self.pdf_file = None
+        self.output_folder = None
+        
+    def select_pdf(self):
+        # prompt user to select pdf file
+        self.pdf_file = filedialog.askopenfilename(title="Select PDF File", filetypes=[("PDF Files", "*.pdf")])
+        self.log(f"Selected PDF file: {self.pdf_file}")
+        
+    def select_output(self):
+        # prompt user to select output folder
+        self.output_folder = filedialog.askdirectory(title="Select Output Folder")
+        self.log(f"Selected output folder: {self.output_folder}")
+        
+    def process_pdf(self):
+        if not self.pdf_file:
+            self.log("Please select a PDF file.")
+            return
+        if not self.output_folder:
+            self.log("Please select an output folder.")
+            return
+        
+        # open input pdf file
+        pdf_document = fitz.open(self.pdf_file)
+        num_pages = pdf_document.page_count
+        self.log(f"Number of pages in PDF: {num_pages}")
+        
+        # generate images from pdf pages
+        for page_num in range(num_pages):
+            # get pdf page
+            pdf_page = pdf_document[page_num]
+            
+            # generate image from pdf page
+            pix = pdf_page.get_pixmap()
+            
+            # save image to output folder
+            output_file = f"{self.output_folder}/page_{page_num+1}.png"
+            pix.save(output_file)
+            self.log(f"Page {page_num+1} saved to: {output_file}")
+        
+        # close pdf document
+        pdf_document.close()
+        
+    def log(self, message):
+        # add message to log text widget
+        self.log_text.insert(tk.END, f"{message}\n")
+        self.log_text.see(tk.END)
+        
+if __name__ == "__main__":
+    # create main window
+    root = tk.Tk()
+    
+    # create pdf processor UI
+    pdf_processor = PDFProcessor(root)
+    
+    # run UI
+    root.mainloop()
+
