@@ -181,7 +181,6 @@ while True:
 
 window.close()
 
-
 import os
 import fitz
 import PySimpleGUI as sg
