@@ -326,3 +326,17 @@ closing = cv2.morphologyEx(smooth, cv2.MORPH_CLOSE, kernel, iterations=2)
 # Save the enhanced image
 cv2.imwrite('enhanced_image.jpg', closing)
 
+import cv2
+
+# Load the image
+img = cv2.imread('image.jpg')
+
+# Convert the image to grayscale
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Perform unsharp masking to sharpen the image
+blur = cv2.GaussianBlur(gray, (0, 0), 3)
+sharpened = cv2.addWeighted(gray, 1.5, blur, -0.5, 0)
+
+# Save the sharpened image
+cv2.imwrite('sharpened_image.jpg', sharpened)
