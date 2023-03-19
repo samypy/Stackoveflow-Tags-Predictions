@@ -190,7 +190,7 @@ layout = [
     [sg.Text('Select PDF file: '), sg.Input(key='-FILE-', enable_events=True, visible=False), sg.FileBrowse()],
     [sg.Text('Select output folder: '), sg.Input(key='-FOLDER-', enable_events=True, visible=False), sg.FolderBrowse()],
     [sg.Text('Resolution (dpi): '), sg.Input(key='-RESOLUTION-', default_text='300')],
-    [sg.Output(size=(80, 20))],
+    [sg.Multiline(key='-LOG-', size=(80, 20), autoscroll=True)],
     [sg.Button('Extract Images'), sg.Button('Exit')]
 ]
 
@@ -235,7 +235,10 @@ while True:
             # Save the image to the output folder
             output_file = os.path.join(output_folder, f'page_{page+1}.png')
             pix.save(output_file)
-            sg.Print(f'Saved {output_file}')
+
+            # Write to the log
+            log_text = f'Saved {output_file}\n'
+            window['-LOG-'].print(log_text, end='')
 
         # Close the PDF file
         pdf.close()
