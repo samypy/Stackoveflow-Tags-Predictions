@@ -134,3 +134,49 @@ if __name__ == "__main__":
     # run UI
     root.mainloop()
 
+
+import fitz
+import os
+import PySimpleGUI as sg
+
+def convert_pdf_to_images(pdf_path, output_folder, resolution):
+    doc = fitz.open(pdf_path)
+    name = os.path.splitext(os.path.basename(pdf_path))[0]
+    images_folder = os.path.join(output_folder, name)
+    os.makedirs(images_folder, exist_ok=True)
+    for i in range(len(doc)):
+        page = doc[i]
+        rotate = int(0)
+        zoom_x = float(resolution) / 100.0
+        zoom_y = float(resolution) / 100.0
+        trans = fitz.Matrix(zoom_x, zoom_y).preRotate(rotate)
+        pm = page.getPixmap(matrix=trans, alpha=False)
+        output_file = os.path.join(images_folder, f"{name}_page{i+1}.png")
+        pm.writePNG(output_file)
+
+sg.theme('DarkBlue')
+layout = [[sg.Text('Select PDF File:'), sg.Input(key='pdf_file'), sg.FileBrowse()],
+          [sg.Text('Select Output Folder:'), sg.Input(key='output_folder'), sg.FolderBrowse()],
+          [sg.Text('Output Image Resolution (DPI):'), sg.Input(key='resolution', default_text='300')],
+          [sg.Button('Convert'), sg.Button('Exit')],
+          [sg.Output(size=(60, 15))]]
+
+window = sg.Window('PDF to Image Converter', layout)
+
+while True:
+    event, values = window.read()
+    if event == sg.WIN_CLOSED or event == 'Exit':
+        break
+    if event == 'Convert':
+        pdf_file = values['pdf_file']
+        output_folder = values['output_folder']
+        resolution = values['resolution']
+        try:
+            convert_pdf_to_images(pdf_file, output_folder, resolution)
+            sg.popup('Conversion complete!', title='Success')
+        except Exception as e:
+            sg.popup(f'Error: {str(e)}', title='Error')
+    else:
+        continue
+
+window.close()
