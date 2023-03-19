@@ -229,8 +229,9 @@ while True:
                 bbox.pre_rotate(-current_page.rotation)
 
             # Render the page as an image
-            pix = current_page.get_pixmap(alpha=False, matrix=bbox, clip=bbox)
-            pix = pix.resize((resolution, resolution))
+            pixmap = page.get_pixmap(matrix=fitz.Matrix(300/72, 300/72))
+            # Resize the pixmap to desired dimensions
+            pixmap = pixmap.scaledToWidth(1200, mode=Qt.SmoothTransformation)
 
             # Save the image to the output folder
             output_file = os.path.join(output_folder, f'page_{page+1}.png')
