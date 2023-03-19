@@ -247,3 +247,18 @@ while True:
 # Close the PySimpleGUI window
 window.close()
 
+from PIL import Image, ImageEnhance
+
+#read the image
+im = Image.open("ext_im.jpg")
+
+#image brightness enhancer
+enhancer = ImageEnhance.Brightness(im)
+
+factor = 1 #gives original image
+im_output = enhancer.enhance(factor)
+im_output.save('ext_im-1.jpg')
+
+factor = 1.5## brightens the image
+im_output = enhancer.enhance(factor)
+im_output.save('ext_im-2.jpg')
