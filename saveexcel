@@ -180,3 +180,67 @@ while True:
         continue
 
 window.close()
+
+
+import os
+import fitz
+import PySimpleGUI as sg
+
+# Define the PySimpleGUI layout
+layout = [
+    [sg.Text('Select PDF file: '), sg.Input(key='-FILE-', enable_events=True, visible=False), sg.FileBrowse()],
+    [sg.Text('Select output folder: '), sg.Input(key='-FOLDER-', enable_events=True, visible=False), sg.FolderBrowse()],
+    [sg.Text('Resolution (dpi): '), sg.Input(key='-RESOLUTION-', default_text='300')],
+    [sg.Output(size=(80, 20))],
+    [sg.Button('Extract Images'), sg.Button('Exit')]
+]
+
+# Create the PySimpleGUI window
+window = sg.Window('PDF Image Extractor', layout)
+
+# Event loop
+while True:
+    event, values = window.read()
+    if event == sg.WIN_CLOSED or event == 'Exit':
+        break
+    if event == 'Extract Images':
+        filename = values['-FILE-']
+        output_folder = values['-FOLDER-']
+        resolution = int(values['-RESOLUTION-'])
+
+        if not filename:
+            sg.popup('Please select a PDF file')
+            continue
+        if not output_folder:
+            sg.popup('Please select an output folder')
+            continue
+
+        # Open the PDF file
+        pdf = fitz.open(filename)
+
+        # Iterate over each page
+        for page in range(pdf.page_count):
+            # Get the current page
+            current_page = pdf[page]
+
+            # Get the bounding box for the page and apply the rotation
+            bbox = current_page.rect
+            if current_page.rotation:
+                bbox = bbox.rect
+                bbox.pre_rotate(-current_page.rotation)
+
+            # Render the page as an image
+            pix = current_page.get_pixmap(alpha=False, matrix=bbox, clip=bbox)
+            pix = pix.resize((resolution, resolution))
+
+            # Save the image to the output folder
+            output_file = os.path.join(output_folder, f'page_{page+1}.png')
+            pix.save(output_file)
+            sg.Print(f'Saved {output_file}')
+
+        # Close the PDF file
+        pdf.close()
+
+# Close the PySimpleGUI window
+window.close()
+
