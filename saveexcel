@@ -386,3 +386,44 @@ for row in sheet1.iter_rows(min_row=2):
 # Save the updated file
 wb1.save('file1_updated.xlsx')
 
+import openpyxl
+
+# Open the two Excel files
+wb1 = openpyxl.load_workbook('file1.xlsx')
+wb2 = openpyxl.load_workbook('file2.xlsx')
+
+# Get the sheets to compare
+sheet1 = wb1['Sheet1']
+sheet2 = wb2['Sheet1']
+
+# Define the unique ID column
+id_col = 'A'
+
+# Get the column headers
+headers = [cell.value for cell in sheet1[1]]
+
+# Create a dictionary to store the values of the first file
+values1 = {}
+for row in sheet1.iter_rows(min_row=2, values_only=True):
+    id_value = row[0]
+    values1[id_value] = row[1:]
+
+# Create a dictionary to store the values of the second file
+values2 = {}
+for row in sheet2.iter_rows(min_row=2, values_only=True):
+    id_value = row[0]
+    values2[id_value] = row[1:]
+
+# Compare the values and create new columns with the differences
+for col_idx, header in enumerate(headers[1:], start=2):
+    sheet1.cell(row=1, column=col_idx+len(headers)).value = f'{header} Difference'
+    for row in sheet1.iter_rows(min_row=2):
+        id_value = row[0].value
+        if id_value in values2:
+            if row[col_idx-1].value != values2[id_value][col_idx-2]:
+                row[col_idx+len(headers)-1].value = f'{row[col_idx-1].value} != {values2[id_value][col_idx-2]}'
+        else:
+            row[col_idx+len(headers)-1].value = 'ID not found in second file'
+
+# Save the updated file
+wb1.save('file1_updated.xlsx')
