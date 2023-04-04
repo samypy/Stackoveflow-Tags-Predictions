@@ -341,3 +341,48 @@ sharpened = cv2.addWeighted(gray, 1.5, blur, -0.5, 0)
 # Save the sharpened image
 cv2.imwrite('sharpened_image.jpg', sharpened)
 
+
+
+import openpyxl
+
+# Open the two Excel files
+wb1 = openpyxl.load_workbook('file1.xlsx')
+wb2 = openpyxl.load_workbook('file2.xlsx')
+
+# Get the sheets to compare
+sheet1 = wb1['Sheet1']
+sheet2 = wb2['Sheet1']
+
+# Define the unique ID column
+id_col = 'A'
+
+# Define the text value column to compare
+text_col = 'B'
+
+# Create a dictionary to store the values of the first file
+values1 = {}
+for row in sheet1.iter_rows(min_row=2, values_only=True):
+    id_value = row[0]
+    text_value = row[1]
+    values1[id_value] = text_value
+
+# Create a dictionary to store the values of the second file
+values2 = {}
+for row in sheet2.iter_rows(min_row=2, values_only=True):
+    id_value = row[0]
+    text_value = row[1]
+    values2[id_value] = text_value
+
+# Compare the values and create a new column with the differences
+sheet1['C1'] = 'Difference'
+for row in sheet1.iter_rows(min_row=2):
+    id_value = row[0].value
+    if id_value in values2:
+        if row[1].value != values2[id_value]:
+            row[2].value = f'{row[1].value} != {values2[id_value]}'
+    else:
+        row[2].value = 'ID not found in second file'
+
+# Save the updated file
+wb1.save('file1_updated.xlsx')
+
