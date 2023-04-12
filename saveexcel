@@ -428,20 +428,4 @@ for col_idx, header in enumerate(headers[1:], start=2):
 # Save the updated file
 wb1.save('file1_updated.xlsx')
 
- Sure, here's a possible approach that the team took to achieve the project accomplishment:
-
-Define the project goal and scope: The team first defined the goal of the project, which was to update missing email addresses of contacts for businesses. They also determined the scope of the project, including the number of records to remediate and the target audience to email.
-
-Plan and prioritize tasks: The team then planned and prioritized the tasks necessary to achieve the project goal. This included identifying the internal tools and techniques needed to email assistants and build internal tools, determining the best way to contact bankers' assistants, and deciding on a follow-up process.
-
-Develop and implement internal tools: The team developed and implemented internal tools, such as Excel VBA and Python, to email assistants and retrieve missing email addresses. This required technical skills and collaboration to ensure the tools were effective and efficient.
-
-Contact bankers' assistants: The team emailed approximately 1300 bankers' assistants to request missing email addresses. They provided clear and concise instructions on how to provide the missing information, and also educated them on the importance of the project.
-
-Follow up with assistants: The team ensured proper follow-up was done to get responses from bankers' assistants. They also answered queries and provided assistance to assistants who needed help with the email remediation process.
-
-Remediate email addresses: The team successfully remediated email addresses for 44k records and proposed email remediation for 21k records. They ensured the accuracy of the email addresses and updated them in the appropriate systems.
-
-Evaluate and report: The team evaluated the project to determine its success and identified areas for improvement. They also reported the results of the project to stakeholders and shared insights gained during the process.
-
-Overall, the team used a strategic and collaborative approach to achieve the project goal of updating missing email addresses for businesses. They leveraged their technical skills and interpersonal communication to achieve the desired outcome.
+ 
