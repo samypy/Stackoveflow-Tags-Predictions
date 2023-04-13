@@ -428,4 +428,49 @@ for col_idx, header in enumerate(headers[1:], start=2):
 # Save the updated file
 wb1.save('file1_updated.xlsx')
 
- 
+Sub AddColumnsAndLookup()
+    Dim wbMaster As Workbook
+    Dim wsMaster As Worksheet
+    Dim lr As Long
+    Dim lookupRange As Range
+    Dim vlookupRange As Range
+    Dim lastMonthFolder As String
+    Dim finalFilePath As String
+    
+    ' Get the current directory and previous month name
+    Dim currDir As String
+    currDir = ActiveWorkbook.Path
+    lastMonthFolder = Format(DateAdd("m", -1, Date), "mmmm")
+    
+    ' Set the path to the final file
+    finalFilePath = currDir & "\" & lastMonthFolder & "\final.xlsx"
+    
+    ' Open the master workbook in the background
+    Set wbMaster = Workbooks.Open(currDir & "\master.xlsx", False, True)
+    Set wsMaster = wbMaster.Sheets(1)
+    
+    ' Add new columns after column 2
+    wsMaster.Columns(3).Insert Shift:=xlToRight
+    wsMaster.Columns(3).Insert Shift:=xlToRight
+    
+    ' Get the last row of the data
+    lr = wsMaster.Cells(Rows.Count, 1).End(xlUp).Row
+    
+    ' Set the lookup range and lookup value range
+    Set lookupRange = wsMaster.Range("A2:A" & lr)
+    Set vlookupRange = wsMaster.Range("C2:C" & lr)
+    
+    ' Perform VLOOKUP on the first new column
+    vlookupRange.FormulaR1C1 = "=VLOOKUP(RC[-2],'" & finalFilePath & "'!R1C1:R1048576C2,2,FALSE)"
+    
+    ' Save and close the master workbook
+    wbMaster.Save
+    wbMaster.Close
+    
+    ' Clean up
+    Set wbMaster = Nothing
+    Set wsMaster = Nothing
+    Set lookupRange = Nothing
+    Set vlookupRange = Nothing
+End Sub
+
