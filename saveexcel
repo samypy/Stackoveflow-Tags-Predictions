@@ -474,3 +474,28 @@ Sub AddColumnsAndLookup()
     Set vlookupRange = Nothing
 End Sub
 
+
+Sub VLookupFromAnotherFile()
+    Dim lookupValue As Variant
+    Dim lookupTableFilePath As String
+    Dim lookupTableWorksheetName As String
+    Dim lookupTableRange As String
+    Dim result As Variant
+    
+    ' Set the lookup value
+    lookupValue = Range("A1").Value
+    
+    ' Set the path to the lookup table file, the worksheet name, and the range
+    lookupTableFilePath = "C:\Lookup.xlsx"
+    lookupTableWorksheetName = "Sheet1"
+    lookupTableRange = "A:B"
+    
+    ' Perform the VLOOKUP using the lookup table in the other file
+    result = Application.WorksheetFunction.VLookup(lookupValue, _
+        "'" & lookupTableFilePath & "[" & lookupTableWorksheetName & "]" & _
+        lookupTableRange & "'", 2, False)
+    
+    ' Display the result
+    MsgBox "Result: " & result
+End Sub
+
