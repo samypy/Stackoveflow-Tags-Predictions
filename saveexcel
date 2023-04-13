@@ -499,3 +499,7 @@ Sub VLookupFromAnotherFile()
     MsgBox "Result: " & result
 End Sub
 
+@echo off
+"C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE" "C:\path\to\your\excel\file.xlsm" /x MyMacro
+timeout /t 5
+taskkill /f /im EXCEL.EXE
