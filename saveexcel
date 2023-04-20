@@ -580,3 +580,19 @@ Function FindSecondLatestPeriod(latest_period_text As String, ParamArray periods
     
 End Function
 
+Sub FilterTop2Dates()
+
+    ' Define variables
+    Dim lastRow As Long
+    
+    ' Find last row of data
+    lastRow = ActiveSheet.Cells(Rows.Count, 1).End(xlUp).Row
+    
+    ' Apply filter to column A
+    Range("A1:A" & lastRow).AutoFilter Field:=1
+    
+    ' Filter top 2 dates
+    ActiveSheet.Range("A1:A" & lastRow).AutoFilter Field:=1, _
+        Criteria1:=">=" & WorksheetFunction.Large(Range("A1:A" & lastRow), 2)
+    
+End Sub
