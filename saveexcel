@@ -536,3 +536,47 @@ Sub FilterAndStoreUniqueIDs()
     
 End Sub
 
+
+Function FindSecondLatestPeriod(latest_period_text As String, ParamArray periods() As Variant) As String
+    
+    ' Convert the latest period text into an actual date range
+    Dim latest_period_start As Date
+    Dim latest_period_end As Date
+    latest_period_start = DateValue("01 " & Right(latest_period_text, 4))
+    latest_period_end = DateSerial(2000 + Right(latest_period_text, 2), MonthName(Left(latest_period_text, 3), True), 30)
+    
+    ' Declare variables for storing the latest and second latest periods
+    Dim latest_period As Variant
+    Dim second_latest_period As Variant
+    
+    ' Loop through all the periods and identify the latest and second latest ones
+    For Each period In periods
+        Dim period_text As String
+        period_text = CStr(period)
+        
+        ' Convert the period text into an actual date range
+        Dim period_start As Date
+        Dim period_end As Date
+        period_start = DateValue("01 " & Right(period_text, 4))
+        period_end = DateSerial(2000 + Right(period_text, 2), MonthName(Left(period_text, 3), True), 30)
+        
+        ' Check if the period is more recent than the latest period
+        If period_start <= latest_period_end And period_end >= latest_period_start Then
+            ' If so, set the latest period to this one and move the previous latest period to the second latest period
+            second_latest_period = latest_period
+            latest_period = period
+        ElseIf period_start <= second_latest_period_end And period_end >= second_latest_period_start Then
+            ' If not, but it's more recent than the second latest period, set it as the second latest period
+            second_latest_period = period
+        End If
+    Next period
+    
+    ' Check if a second latest period was found
+    If IsEmpty(second_latest_period) Then
+        FindSecondLatestPeriod = "No second latest period found."
+    Else
+        FindSecondLatestPeriod = "The second latest period is " & CStr(second_latest_period) & "."
+    End If
+    
+End Function
+
