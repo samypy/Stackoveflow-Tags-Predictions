@@ -507,3 +507,32 @@ $Workbook.Save()
 $Workbook.Close()
 $Excel.Quit()
 
+Sub FilterAndStoreUniqueIDs()
+
+    ' Define the range to filter
+    Dim rng As Range
+    Set rng = Range("A1:A100")
+    
+    ' Define the dictionary to store unique IDs
+    Dim uniqueIDs As Object
+    Set uniqueIDs = CreateObject("Scripting.Dictionary")
+    
+    ' Filter the range to show only unique IDs
+    rng.AdvancedFilter Action:=xlFilterCopy, Unique:=True
+    
+    ' Loop through the visible cells to store unique IDs in the dictionary
+    Dim cell As Range
+    For Each cell In rng.SpecialCells(xlCellTypeVisible)
+        If cell.Value <> "" And Not uniqueIDs.exists(cell.Value) Then
+            uniqueIDs.Add cell.Value, cell.Value
+        End If
+    Next cell
+    
+    ' Loop through the dictionary to print each unique ID
+    Dim key As Variant
+    For Each key In uniqueIDs.Keys
+        Debug.Print key
+    Next key
+    
+End Sub
+
