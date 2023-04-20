@@ -596,3 +596,16 @@ Sub FilterTop2Dates()
         Criteria1:=">=" & WorksheetFunction.Large(Range("A1:A" & lastRow), 2)
     
 End Sub
+Dim largestDate As Date
+Dim secondLargestDate As Date
+
+For Each dateItem In dateObject
+    If dateItem > largestDate Then
+        secondLargestDate = largestDate
+        largestDate = dateItem
+    ElseIf dateItem > secondLargestDate And dateItem < largestDate Then
+        secondLargestDate = dateItem
+    End If
+Next dateItem
+
+MsgBox "The second largest date is: " & secondLargestDate
