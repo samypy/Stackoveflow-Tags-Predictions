@@ -654,3 +654,47 @@ Sub FilterAndCopyData()
     
 End Sub
 
+Sub VLOOKUP_FilteredData()
+    
+    Dim ws1 As Worksheet ' Sheet1
+    Dim ws2 As Worksheet ' Sheet2
+    Dim lastRow1 As Long ' Last row in Sheet1
+    Dim lastRow2 As Long ' Last row in Sheet2
+    Dim rng1 As Range ' Range of Account IDs in Sheet1
+    Dim rng2 As Range ' Range of Account IDs in Sheet2
+    Dim filterRange As Range ' Range of filtered data in Sheet2
+    Dim cell As Range ' Cell in Sheet1 to perform VLOOKUP
+    
+    ' Set references to Sheet1 and Sheet2
+    Set ws1 = ThisWorkbook.Sheets("Sheet1")
+    Set ws2 = ThisWorkbook.Sheets("Sheet2")
+    
+    ' Get last row of data in Sheet1
+    lastRow1 = ws1.Cells(ws1.Rows.Count, "A").End(xlUp).Row
+    
+    ' Get range of Account IDs in Sheet1
+    Set rng1 = ws1.Range("A2:A" & lastRow1)
+    
+    ' Get last row of data in Sheet2
+    lastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
+    
+    ' Get range of Account IDs in Sheet2
+    Set rng2 = ws2.Range("A2:A" & lastRow2)
+    
+    ' Apply filter to Sheet2
+    ws2.Range("A1:F" & lastRow2).AutoFilter Field:=1, Criteria1:="<>", VisibleDropDown:=False
+    
+    ' Get range of filtered data in Sheet2
+    Set filterRange = ws2.Range("A2:F" & lastRow2).SpecialCells(xlCellTypeVisible)
+    
+    ' Loop through each cell in the range of Account IDs in Sheet1
+    For Each cell In rng1
+        ' Perform VLOOKUP on the current cell in Sheet1 with the filtered data in Sheet2
+        cell.Offset(0, 1).Value = Application.VLookup(cell.Value, filterRange, 2, False)
+    Next cell
+    
+    ' Remove filter from Sheet2
+    ws2.AutoFilterMode = False
+    
+End Sub
+
