@@ -31,3 +31,5 @@ Sub LookupAccountName()
     End If
     
 End Sub
+
+Set accountRange = ws2.Range("A2:D" & ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row)
