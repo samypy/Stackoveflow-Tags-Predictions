@@ -609,3 +609,48 @@ For Each dateItem In dateObject
 Next dateItem
 
 MsgBox "The second largest date is: " & secondLargestDate
+
+
+Sub FilterAndCopyData()
+
+    ' Declare variables
+    Dim templateFilePath As String, wbTemplate As Workbook, wsTemplate As Worksheet
+    Dim wsData As Worksheet
+    Dim filterValue As String
+    Dim lastRow As Long, i As Long, j As Long
+    
+    ' Set template file path and open it
+    templateFilePath = "C:\Path\To\Template\File.xlsx"
+    Set wbTemplate = Workbooks.Open(templateFilePath)
+    Set wsTemplate = wbTemplate.Worksheets("Sheet1")
+    
+    ' Set data sheet
+    Set wsData = ThisWorkbook.Worksheets("Sheet1")
+    
+    ' Get last row of data sheet
+    lastRow = wsData.Cells(wsData.Rows.Count, "A").End(xlUp).Row
+    
+    ' Loop through each ID in data sheet column A
+    For i = 2 To lastRow ' assuming row 1 is header
+        filterValue = wsData.Cells(i, "A").Value
+        wsData.Range("A1").AutoFilter Field:=1, Criteria1:=filterValue
+        
+        ' Copy filtered data to template file
+        j = 5 ' start from row 5 in template sheet1
+        For Each cell In wsData.Range("A2:A" & lastRow).SpecialCells(xlCellTypeVisible)
+            wsTemplate.Cells(j, "A").Value = cell.Value
+            j = j + 1
+        Next cell
+        
+        ' Clear filter
+        wsData.Range("A1").AutoFilter
+        
+        ' Save template file with new data
+        wbTemplate.SaveAs "C:\Path\To\New\Template\File " & filterValue & ".xlsx"
+        wbTemplate.Close
+        Set wbTemplate = Workbooks.Open(templateFilePath)
+        Set wsTemplate = wbTemplate.Worksheets("Sheet1")
+    Next i
+    
+End Sub
+
