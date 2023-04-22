@@ -33,3 +33,28 @@ Sub LookupAccountName()
 End Sub
 
 Set accountRange = ws2.Range("A2:D" & ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row)
+
+
+Function DeleteElement(x As String, ByRef List() As String) ' As String
+    Dim i As Integer, el As Integer
+    Dim Result() As String
+
+    ReDim Result(UBound(List) - 1)
+
+    For i = 0 To UBound(List)
+        If x = List(i) Then
+            el = i
+            Exit For
+        End If
+    Next i
+
+    For i = 0 To UBound(Result)
+        If i < el Then
+            Result(i) = List(i)
+        Else
+            Result(i) = List(i + 1)
+        End If
+    Next i
+
+    DeleteElement = Result
+End Function
