@@ -1,60 +1,58 @@
-Sub LookupAccountName()
+Sub FindNthLargestDate()
+    'Assuming the dates are stored in a dictionary object
+    Dim dateDict As Object
+    Dim dateArray() As Variant
+    Dim N As Integer
+    Dim i As Integer
     
-    Dim accountRange As Range ' Range containing Account ID and Name
-    Dim accountArray As Variant ' Array to hold Account ID and Name
-    Dim accountDict As Object ' Dictionary to hold Account ID and Name as key-value pairs
-    Dim accountId As Variant ' Account ID to lookup in the dictionary
-    Dim accountName As Variant ' Account Name retrieved from the dictionary
+    Set dateDict = CreateObject("Scripting.Dictionary")
+    dateDict.Add "Date1", #1/1/2023#
+    dateDict.Add "Date2", #3/15/2023#
+    dateDict.Add "Date3", #2/20/2023#
+    dateDict.Add "Date4", #4/1/2023#
+    dateDict.Add "Date5", #5/10/2023#
     
-    ' Set the range containing the Account ID and Name
-    Set accountRange = ThisWorkbook.Sheets("Sheet1").Range("A2:B10")
+    'Copy the dates to an array
+    ReDim dateArray(1 To dateDict.Count)
+    i = 1
+    For Each Key In dateDict
+        dateArray(i) = dateDict(Key)
+        i = i + 1
+    Next Key
     
-    ' Convert the range to an array
-    accountArray = accountRange.Value
+    'Sort the array in descending order
+    Call QuickSort(dateArray, LBound(dateArray), UBound(dateArray))
     
-    ' Create a dictionary to hold the Account ID and Name as key-value pairs
-    Set accountDict = CreateObject("Scripting.Dictionary")
-    
-    ' Loop through the array and add the Account ID and Name to the dictionary
-    Dim i As Long
-    For i = LBound(accountArray, 1) To UBound(accountArray, 1)
-        accountDict.Add accountArray(i, 1), accountArray(i, 2)
-    Next i
-    
-    ' Lookup the Account Name using the Account ID in the dictionary
-    accountId = "1234" ' Replace with the Account ID to lookup
-    If accountDict.exists(accountId) Then
-        accountName = accountDict(accountId)
-        Debug.Print "Account Name: " & accountName
-    Else
-        Debug.Print "Account ID not found"
-    End If
-    
+    'Find the Nth largest date
+    N = dateDict.Count
+    Debug.Print "Nth Largest Date: " & dateArray(N)
 End Sub
 
-Set accountRange = ws2.Range("A2:D" & ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row)
-
-
-Function DeleteElement(x As String, ByRef List() As String) ' As String
-    Dim i As Integer, el As Integer
-    Dim Result() As String
-
-    ReDim Result(UBound(List) - 1)
-
-    For i = 0 To UBound(List)
-        If x = List(i) Then
-            el = i
-            Exit For
+Sub QuickSort(arr As Variant, l As Long, r As Long)
+    Dim i As Long, j As Long
+    Dim pivot As Variant, tmp As Variant
+    
+    i = l
+    j = r
+    pivot = arr((l + r) \ 2)
+    
+    While i <= j
+        While arr(i) > pivot And i < r
+            i = i + 1
+        Wend
+        While pivot > arr(j) And j > l
+            j = j - 1
+        Wend
+        If i <= j Then
+            tmp = arr(i)
+            arr(i) = arr(j)
+            arr(j) = tmp
+            i = i + 1
+            j = j - 1
         End If
-    Next i
+    Wend
+    
+    If l < j Then Call QuickSort(arr, l, j)
+    If i < r Then Call QuickSort(arr, i, r)
+End Sub
 
-    For i = 0 To UBound(Result)
-        If i < el Then
-            Result(i) = List(i)
-        Else
-            Result(i) = List(i + 1)
-        End If
-    Next i
-
-    DeleteElement = Result
-End Function
