@@ -56,3 +56,4 @@ Sub QuickSort(arr As Variant, l As Long, r As Long)
     If i < r Then Call QuickSort(arr, i, r)
 End Sub
 
+=IF(A1>=10000000000,"Large",IF(A1>=7000000000,"Medium","Small"))
