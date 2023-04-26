@@ -57,3 +57,29 @@ Sub QuickSort(arr As Variant, l As Long, r As Long)
 End Sub
 
 =IF(A1>=10000000000,"Large",IF(A1>=7000000000,"Medium","Small"))
+
+
+Sub CopyChartFormat()
+    Dim myChart As Chart
+    Dim mySlicer As Slicer
+    Dim mySlicerCache As SlicerCache
+    Dim mySlicerItem As SlicerItem
+    Dim mySelectedSlicerItem As SlicerItem
+    
+    'Get the selected slicer item
+    Set mySlicer = ActiveWorkbook.SlicerCaches("Slicer1").Slicers("Slicer_Slicer1")
+    Set mySelectedSlicerItem = mySlicer.SlicerItems(mySlicer.SelectedSlicerItems(1))
+    
+    'Get the chart associated with the selected slicer item
+    Set myChart = mySelectedSlicerItem.ChartObject.Chart
+    
+    'Get the slicer cache and loop through the slicer items
+    Set mySlicerCache = ActiveWorkbook.SlicerCaches("Slicer1")
+    For Each mySlicerItem In mySlicerCache.SlicerItems
+        'Skip the selected slicer item
+        If Not mySlicerItem Is mySelectedSlicerItem Then
+            'Copy the chart format to the current slicer item
+            mySlicerItem.ChartObject.Chart.ChartArea.Format.Copy myChart.ChartArea.Format
+        End If
+    Next mySlicerItem
+End Sub
