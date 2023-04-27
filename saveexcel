@@ -1,193 +1,3 @@
-Sub FindNthLargestDate()
-    'Assuming the dates are stored in a dictionary object
-    Dim dateDict As Object
-    Dim dateArray() As Variant
-    Dim N As Integer
-    Dim i As Integer
-    
-    Set dateDict = CreateObject("Scripting.Dictionary")
-    dateDict.Add "Date1", #1/1/2023#
-    dateDict.Add "Date2", #3/15/2023#
-    dateDict.Add "Date3", #2/20/2023#
-    dateDict.Add "Date4", #4/1/2023#
-    dateDict.Add "Date5", #5/10/2023#
-    
-    'Copy the dates to an array
-    ReDim dateArray(1 To dateDict.Count)
-    i = 1
-    For Each Key In dateDict
-        dateArray(i) = dateDict(Key)
-        i = i + 1
-    Next Key
-    
-    'Sort the array in descending order
-    Call QuickSort(dateArray, LBound(dateArray), UBound(dateArray))
-    
-    'Find the Nth largest date
-    N = dateDict.Count
-    Debug.Print "Nth Largest Date: " & dateArray(N)
-End Sub
-
-Sub QuickSort(arr As Variant, l As Long, r As Long)
-    Dim i As Long, j As Long
-    Dim pivot As Variant, tmp As Variant
-    
-    i = l
-    j = r
-    pivot = arr((l + r) \ 2)
-    
-    While i <= j
-        While arr(i) > pivot And i < r
-            i = i + 1
-        Wend
-        While pivot > arr(j) And j > l
-            j = j - 1
-        Wend
-        If i <= j Then
-            tmp = arr(i)
-            arr(i) = arr(j)
-            arr(j) = tmp
-            i = i + 1
-            j = j - 1
-        End If
-    Wend
-    
-    If l < j Then Call QuickSort(arr, l, j)
-    If i < r Then Call QuickSort(arr, i, r)
-End Sub
-
-=IF(A1>=10000000000,"Large",IF(A1>=7000000000,"Medium","Small"))
-
-
-Sub CopyChartFormat()
-    Dim myChart As Chart
-    Dim mySlicer As Slicer
-    Dim mySlicerCache As SlicerCache
-    Dim mySlicerItem As SlicerItem
-    Dim mySelectedSlicerItem As SlicerItem
-    
-    'Get the selected slicer item
-    Set mySlicer = ActiveWorkbook.SlicerCaches("Slicer1").Slicers("Slicer_Slicer1")
-    Set mySelectedSlicerItem = mySlicer.SlicerItems(mySlicer.SelectedSlicerItems(1))
-    
-    'Get the chart associated with the selected slicer item
-    Set myChart = mySelectedSlicerItem.ChartObject.Chart
-    
-    'Get the slicer cache and loop through the slicer items
-    Set mySlicerCache = ActiveWorkbook.SlicerCaches("Slicer1")
-    For Each mySlicerItem In mySlicerCache.SlicerItems
-        'Skip the selected slicer item
-        If Not mySlicerItem Is mySelectedSlicerItem Then
-            'Copy the chart format to the current slicer item
-            mySlicerItem.ChartObject.Chart.ChartArea.Format.Copy myChart.ChartArea.Format
-        End If
-    Next mySlicerItem
-End Sub
-Sub ChangeChartLineLabelFormat()
-    Dim cht As Chart
-    Dim ser As Series
-    Dim pts As Points
-    Dim pt As Point
-    
-    ' Set reference to the chart
-    Set cht = ActiveSheet.ChartObjects("Chart 1").Chart
-    
-    ' Loop through each series in the chart
-    For Each ser In cht.SeriesCollection
-    
-        ' Loop through each point in the series
-        Set pts = ser.Points
-        For Each pt In pts
-        
-            ' Set the font size and boldness for the label
-            With pt.DataLabel.Font
-                .Size = 14
-                .Bold = True
-            End With
-            
-        Next pt
-        
-    Next ser
-    
-End Sub
-
-Sub AvoidLabelOverlap()
-    Dim cht As Chart
-    Dim ser As Series
-    Dim pts As Points
-    Dim pt As Point
-    Dim i As Long, j As Long
-    Dim max_label_width As Double
-    Dim label_width As Double
-    Dim label_overlap As Boolean
-    
-    ' Set reference to the chart
-    Set cht = ActiveSheet.ChartObjects("Chart 1").Chart
-    
-    ' Loop through each series in the chart
-    For Each ser In cht.SeriesCollection
-        
-        ' Get the maximum width of the data labels in the series
-        max_label_width = 0
-        Set pts = ser.Points
-        For Each pt In pts
-            label_width = pt.DataLabel.Width
-            If label_width > max_label_width Then
-                max_label_width = label_width
-            End If
-        Next pt
-        
-        ' Loop through each point in the series and adjust the label position if necessary
-        For i = 1 To pts.Count
-            label_overlap = False
-            Set pt = pts(i)
-            If pt.DataLabel.Text <> "" Then
-                For j = 1 To pts.Count
-                    If j <> i Then
-                        If pt.DataLabel.Left + max_label_width > pts(j).DataLabel.Left And pt.DataLabel.Left < pts(j).DataLabel.Left + pts(j).DataLabel.Width Then
-                            label_overlap = True
-                            Exit For
-                        End If
-                    End If
-                Next j
-                If label_overlap = True Then
-                    pt.DataLabel.Top = pt.DataLabel.Top + pt.DataLabel.Height
-                End If
-            End If
-        Next i
-    Next ser
-End Sub
-
-Sub AvoidDataLabelOverlap()
-
-    Dim cht As Chart
-    Set cht = ActiveSheet.ChartObjects("Chart 1").Chart
-    
-    Dim srs As Series
-    Dim dl As DataLabel
-    Dim i As Integer, j As Integer
-    
-    ' loop through each series in the chart
-    For i = 1 To cht.SeriesCollection.Count
-        Set srs = cht.SeriesCollection(i)
-        
-        ' loop through each data label in the series
-        For j = 1 To srs.Points.Count
-            Set dl = srs.Points(j).DataLabel
-            
-            ' check if the data label overlaps with any other data labels
-            If dl.Interior.ColorIndex <> xlNone Then ' only compare visible data labels
-                If dl.Top < dl.Top + dl.Height And dl.Left < dl.Left + dl.Width Then
-                    dl.Top = dl.Top + dl.Height ' move the data label down
-                End If
-            End If
-            
-        Next j
-        
-    Next i
-
-End Sub
-
 Sub AdjustDataLabels()
 
     Dim chartObj As ChartObject
@@ -199,41 +9,40 @@ Sub AdjustDataLabels()
     Dim top As Double, bottom As Double, left As Double, right As Double
     Dim overlap As Boolean
     
-    For Each chartObj In ActiveSheet.ChartObjects
-        For k = 1 To chartObj.Chart.SeriesCollection.Count
-            Set seriesObj = chartObj.Chart.SeriesCollection(k)
-            ReDim dataLabels(1 To seriesObj.Points.Count)
-            i = 0
-            For Each pointObj In seriesObj.Points
-                i = i + 1
-                Set dataLabel = pointObj.DataLabel
-                If Not dataLabel Is Nothing Then
-                    dataLabels(i) = dataLabel
-                End If
-            Next pointObj
-            For i = 1 To UBound(dataLabels)
-                If Not dataLabels(i) Is Nothing Then
-                    overlap = True
-                    Do While overlap
-                        overlap = False
-                        top = dataLabels(i).Top
-                        bottom = top + dataLabels(i).Height
-                        left = dataLabels(i).Left
-                        right = left + dataLabels(i).Width
-                        For j = 1 To UBound(dataLabels)
-                            If i <> j And Not dataLabels(j) Is Nothing Then
-                                If left < dataLabels(j).Left + dataLabels(j).Width And right > dataLabels(j).Left And top < dataLabels(j).Top + dataLabels(j).Height And bottom > dataLabels(j).Top Then
-                                    dataLabels(i).Top = dataLabels(j).Top + dataLabels(j).Height + 1
-                                    overlap = True
-                                    Exit For
-                                End If
+    Set chartObj = ActiveSheet.ChartObjects(2)
+    
+    For k = 1 To chartObj.Chart.SeriesCollection.Count
+        Set seriesObj = chartObj.Chart.SeriesCollection(k)
+        ReDim dataLabels(1 To seriesObj.Points.Count)
+        i = 0
+        For Each pointObj In seriesObj.Points
+            i = i + 1
+            Set dataLabel = pointObj.DataLabel
+            If Not dataLabel Is Nothing Then
+                dataLabels(i) = dataLabel
+            End If
+        Next pointObj
+        For i = 1 To UBound(dataLabels)
+            If Not dataLabels(i) Is Nothing Then
+                overlap = True
+                Do While overlap
+                    overlap = False
+                    top = dataLabels(i).Top
+                    bottom = top + dataLabels(i).Height
+                    left = dataLabels(i).Left
+                    right = left + dataLabels(i).Width
+                    For j = 1 To UBound(dataLabels)
+                        If i <> j And Not dataLabels(j) Is Nothing Then
+                            If left < dataLabels(j).Left + dataLabels(j).Width And right > dataLabels(j).Left And top < dataLabels(j).Top + dataLabels(j).Height And bottom > dataLabels(j).Top Then
+                                dataLabels(i).Top = dataLabels(j).Top + dataLabels(j).Height + 1
+                                overlap = True
+                                Exit For
                             End If
-                        Next j
-                    Loop
-                End If
-            Next i
-        Next k
-    Next chartObj
+                        End If
+                    Next j
+                Loop
+            End If
+        Next i
+    Next k
 
 End Sub
-
