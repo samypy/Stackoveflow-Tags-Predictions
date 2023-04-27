@@ -83,3 +83,31 @@ Sub CopyChartFormat()
         End If
     Next mySlicerItem
 End Sub
+Sub ChangeChartLineLabelFormat()
+    Dim cht As Chart
+    Dim ser As Series
+    Dim pts As Points
+    Dim pt As Point
+    
+    ' Set reference to the chart
+    Set cht = ActiveSheet.ChartObjects("Chart 1").Chart
+    
+    ' Loop through each series in the chart
+    For Each ser In cht.SeriesCollection
+    
+        ' Loop through each point in the series
+        Set pts = ser.Points
+        For Each pt In pts
+        
+            ' Set the font size and boldness for the label
+            With pt.DataLabel.Font
+                .Size = 14
+                .Bold = True
+            End With
+            
+        Next pt
+        
+    Next ser
+    
+End Sub
+
