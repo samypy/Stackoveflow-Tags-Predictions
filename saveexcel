@@ -187,3 +187,53 @@ Sub AvoidDataLabelOverlap()
     Next i
 
 End Sub
+
+Sub AdjustDataLabels()
+
+    Dim chartObj As ChartObject
+    Dim seriesObj As Series
+    Dim pointObj As Point
+    Dim i As Long, j As Long, k As Long
+    Dim dataLabel As DataLabel
+    Dim dataLabels() As DataLabel
+    Dim top As Double, bottom As Double, left As Double, right As Double
+    Dim overlap As Boolean
+    
+    For Each chartObj In ActiveSheet.ChartObjects
+        For k = 1 To chartObj.Chart.SeriesCollection.Count
+            Set seriesObj = chartObj.Chart.SeriesCollection(k)
+            ReDim dataLabels(1 To seriesObj.Points.Count)
+            i = 0
+            For Each pointObj In seriesObj.Points
+                i = i + 1
+                Set dataLabel = pointObj.DataLabel
+                If Not dataLabel Is Nothing Then
+                    dataLabels(i) = dataLabel
+                End If
+            Next pointObj
+            For i = 1 To UBound(dataLabels)
+                If Not dataLabels(i) Is Nothing Then
+                    overlap = True
+                    Do While overlap
+                        overlap = False
+                        top = dataLabels(i).Top
+                        bottom = top + dataLabels(i).Height
+                        left = dataLabels(i).Left
+                        right = left + dataLabels(i).Width
+                        For j = 1 To UBound(dataLabels)
+                            If i <> j And Not dataLabels(j) Is Nothing Then
+                                If left < dataLabels(j).Left + dataLabels(j).Width And right > dataLabels(j).Left And top < dataLabels(j).Top + dataLabels(j).Height And bottom > dataLabels(j).Top Then
+                                    dataLabels(i).Top = dataLabels(j).Top + dataLabels(j).Height + 1
+                                    overlap = True
+                                    Exit For
+                                End If
+                            End If
+                        Next j
+                    Loop
+                End If
+            Next i
+        Next k
+    Next chartObj
+
+End Sub
+
