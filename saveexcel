@@ -111,3 +111,49 @@ Sub ChangeChartLineLabelFormat()
     
 End Sub
 
+Sub AvoidLabelOverlap()
+    Dim cht As Chart
+    Dim ser As Series
+    Dim pts As Points
+    Dim pt As Point
+    Dim i As Long, j As Long
+    Dim max_label_width As Double
+    Dim label_width As Double
+    Dim label_overlap As Boolean
+    
+    ' Set reference to the chart
+    Set cht = ActiveSheet.ChartObjects("Chart 1").Chart
+    
+    ' Loop through each series in the chart
+    For Each ser In cht.SeriesCollection
+        
+        ' Get the maximum width of the data labels in the series
+        max_label_width = 0
+        Set pts = ser.Points
+        For Each pt In pts
+            label_width = pt.DataLabel.Width
+            If label_width > max_label_width Then
+                max_label_width = label_width
+            End If
+        Next pt
+        
+        ' Loop through each point in the series and adjust the label position if necessary
+        For i = 1 To pts.Count
+            label_overlap = False
+            Set pt = pts(i)
+            If pt.DataLabel.Text <> "" Then
+                For j = 1 To pts.Count
+                    If j <> i Then
+                        If pt.DataLabel.Left + max_label_width > pts(j).DataLabel.Left And pt.DataLabel.Left < pts(j).DataLabel.Left + pts(j).DataLabel.Width Then
+                            label_overlap = True
+                            Exit For
+                        End If
+                    End If
+                Next j
+                If label_overlap = True Then
+                    pt.DataLabel.Top = pt.DataLabel.Top + pt.DataLabel.Height
+                End If
+            End If
+        Next i
+    Next ser
+End Sub
