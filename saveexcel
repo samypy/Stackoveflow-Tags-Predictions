@@ -157,3 +157,33 @@ Sub AvoidLabelOverlap()
         Next i
     Next ser
 End Sub
+
+Sub AvoidDataLabelOverlap()
+
+    Dim cht As Chart
+    Set cht = ActiveSheet.ChartObjects("Chart 1").Chart
+    
+    Dim srs As Series
+    Dim dl As DataLabel
+    Dim i As Integer, j As Integer
+    
+    ' loop through each series in the chart
+    For i = 1 To cht.SeriesCollection.Count
+        Set srs = cht.SeriesCollection(i)
+        
+        ' loop through each data label in the series
+        For j = 1 To srs.Points.Count
+            Set dl = srs.Points(j).DataLabel
+            
+            ' check if the data label overlaps with any other data labels
+            If dl.Interior.ColorIndex <> xlNone Then ' only compare visible data labels
+                If dl.Top < dl.Top + dl.Height And dl.Left < dl.Left + dl.Width Then
+                    dl.Top = dl.Top + dl.Height ' move the data label down
+                End If
+            End If
+            
+        Next j
+        
+    Next i
+
+End Sub
