@@ -46,3 +46,24 @@ Sub AdjustDataLabels()
     Next k
 
 End Sub
+
+
+import pandas as pd
+
+# Define the file name and sheet names
+file_name = 'example.xlsx'
+sheet_names = ['Sheet1', 'Sheet2', 'Sheet3']
+
+# Create an empty list to store the data frames
+dfs = []
+
+# Loop through each sheet and read the data into a data frame
+for sheet in sheet_names:
+    df = pd.read_excel(file_name, sheet_name=sheet)
+    dfs.append(df)
+
+# Concatenate the data frames into a single data frame
+df_combined = pd.concat(dfs)
+
+# Print the combined data frame
+print(df_combined)
