@@ -96,3 +96,46 @@ result = pd.concat(dfs, ignore_index=True)
 
 # Save the consolidated data to a new Excel file
 result.to_excel('consolidated_file.xlsx', index=False)
+
+Sub GetDLMemberListFromList()
+    Dim olApp As Object ' Outlook Application
+    Dim olNS As Object ' Outlook Namespace
+    Dim olDL As Object ' Outlook Distribution List
+    Dim olMember As Object ' Outlook Recipient
+    Dim dlList As Range ' Range containing the list of DLs
+    
+    ' Create Outlook Application object
+    Set olApp = CreateObject("Outlook.Application")
+    
+    ' Get Outlook Namespace
+    Set olNS = olApp.GetNamespace("MAPI")
+    
+    ' Set the range containing the list of DLs
+    Set dlList = ThisWorkbook.Worksheets("Sheet1").Range("A1:A10") ' Update the sheet name and range as needed
+    
+    ' Iterate through each DL in the list
+    For Each dlCell In dlList
+        ' Get the DL based on the DL name in the cell
+        Set olDL = olNS.CreateRecipient(dlCell.Value).AddressEntry.GetExchangeUser().GetExchangeDistributionList
+        
+        ' Check if the DL is valid
+        If Not olDL Is Nothing Then
+            ' Iterate through the members of the DL
+            For Each olMember In olDL.Members
+                ' Print the member's name and email address
+                Debug.Print dlCell.Value & ": " & olMember.Name & " - " & olMember.Address
+            Next olMember
+        Else
+            ' DL not found or invalid
+            Debug.Print dlCell.Value & ": Invalid DL"
+        End If
+        
+        ' Clean up objects
+        Set olMember = Nothing
+        Set olDL = Nothing
+    Next dlCell
+    
+    ' Clean up objects
+    Set olNS = Nothing
+    Set olApp = Nothing
+End Sub
