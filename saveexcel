@@ -21,3 +21,9 @@ Sub FindExactWord()
 End Sub
 pivot_df = df.pivot(index='Activity Type', columns='Month', values='Duration')
 df = df.groupby(['Activity Type', 'Month']).sum().reset_index()
+def extract_month(date_string):
+    date_object = datetime.strptime(date_string, '%Y-%m-%d')
+    return date_object.month
+
+# Apply the function to the 'Date' column and create a new 'Month' column
+df['Month'] = df['Date'].apply(extract_month)
