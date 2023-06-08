@@ -19,3 +19,4 @@ Sub FindExactWord()
     ' If the loop completes without finding the word
     MsgBox "Exact word not found!"
 End Sub
+pivot_df = df.pivot(index='Activity Type', columns='Month', values='Duration')
