@@ -20,3 +20,4 @@ Sub FindExactWord()
     MsgBox "Exact word not found!"
 End Sub
 pivot_df = df.pivot(index='Activity Type', columns='Month', values='Duration')
+df = df.groupby(['Activity Type', 'Month']).sum().reset_index()
