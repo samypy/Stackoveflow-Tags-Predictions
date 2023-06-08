@@ -1,159 +1,21 @@
-Sub AdjustDataLabels()
-
-    Dim chartObj As ChartObject
-    Dim seriesObj As Series
-    Dim pointObj As Point
-    Dim i As Long, j As Long, k As Long
-    Dim dataLabel As DataLabel
-    Dim dataLabels() As DataLabel
-    Dim top As Double, bottom As Double, left As Double, right As Double
-    Dim overlap As Boolean
+Sub FindExactWord()
+    Dim sentence As String
+    Dim words() As String
+    Dim i As Integer
     
-    Set chartObj = ActiveSheet.ChartObjects(2)
+    sentence = "This is a test sentence for testing purposes."
     
-    For k = 1 To chartObj.Chart.SeriesCollection.Count
-        Set seriesObj = chartObj.Chart.SeriesCollection(k)
-        ReDim dataLabels(1 To seriesObj.Points.Count)
-        i = 0
-        For Each pointObj In seriesObj.Points
-            i = i + 1
-            Set dataLabel = pointObj.DataLabel
-            If Not dataLabel Is Nothing Then
-                dataLabels(i) = dataLabel
-            End If
-        Next pointObj
-        For i = 1 To UBound(dataLabels)
-            If Not dataLabels(i) Is Nothing Then
-                overlap = True
-                Do While overlap
-                    overlap = False
-                    top = dataLabels(i).Top
-                    bottom = top + dataLabels(i).Height
-                    left = dataLabels(i).Left
-                    right = left + dataLabels(i).Width
-                    For j = 1 To UBound(dataLabels)
-                        If i <> j And Not dataLabels(j) Is Nothing Then
-                            If left < dataLabels(j).Left + dataLabels(j).Width And right > dataLabels(j).Left And top < dataLabels(j).Top + dataLabels(j).Height And bottom > dataLabels(j).Top Then
-                                dataLabels(i).Top = dataLabels(j).Top + dataLabels(j).Height + 1
-                                overlap = True
-                                Exit For
-                            End If
-                        End If
-                    Next j
-                Loop
-            End If
-        Next i
-    Next k
-
-End Sub
-
-
-import pandas as pd
-
-# Define the file name and sheet names
-file_name = 'example.xlsx'
-sheet_names = ['Sheet1', 'Sheet2', 'Sheet3']
-
-# Create an empty list to store the data frames
-dfs = []
-
-# Loop through each sheet and read the data into a data frame
-for sheet in sheet_names:
-    df = pd.read_excel(file_name, sheet_name=sheet)
-    dfs.append(df)
-
-# Concatenate the data frames into a single data frame
-df_combined = pd.concat(dfs)
-
-# Print the combined data frame
-print(df_combined)
-
-
-import pandas as pd
-import os
-
-# Specify the directory containing the Excel files
-directory = 'C:/example/directory'
-
-# Get a list of all the Excel files in the directory
-excel_files = [f for f in os.listdir(directory) if f.endswith('.xlsx')]
-
-# Create an empty list to store the dataframes
-dfs = []
-
-# Loop through the Excel files and read the 'daily run' sheet into a dataframe
-for file in excel_files:
-    df = pd.read_excel(os.path.join(directory, file), sheet_name='daily run', header=13)
+    ' Split the sentence into words
+    words = Split(sentence, " ")
     
-    # Create a new column and add the value from range B5 of the sheet
-    df['New Column'] = df.iloc[4, 1]
-    
-    # Append the dataframe to the list
-    dfs.append(df)
-
-# Concatenate all the dataframes into a single dataframe
-result = pd.concat(dfs, ignore_index=True)
-
-# Save the consolidated data to a new Excel file
-result.to_excel('consolidated_file.xlsx', index=False)
-
-Sub GetDLMemberListFromList()
-    Dim olApp As Object ' Outlook Application
-    Dim olNS As Object ' Outlook Namespace
-    Dim olDL As Object ' Outlook Distribution List
-    Dim olMember As Object ' Outlook Recipient
-    Dim dlList As Range ' Range containing the list of DLs
-    
-    ' Create Outlook Application object
-    Set olApp = CreateObject("Outlook.Application")
-    
-    ' Get Outlook Namespace
-    Set olNS = olApp.GetNamespace("MAPI")
-    
-    ' Set the range containing the list of DLs
-    Set dlList = ThisWorkbook.Worksheets("Sheet1").Range("A1:A10") ' Update the sheet name and range as needed
-    
-    ' Iterate through each DL in the list
-    For Each dlCell In dlList
-        ' Get the DL based on the DL name in the cell
-        Set olDL = olNS.CreateRecipient(dlCell.Value).AddressEntry.GetExchangeUser().GetExchangeDistributionList
-        
-        ' Check if the DL is valid
-        If Not olDL Is Nothing Then
-            ' Iterate through the members of the DL
-            For Each olMember In olDL.Members
-                ' Print the member's name and email address
-                Debug.Print dlCell.Value & ": " & olMember.Name & " - " & olMember.Address
-            Next olMember
-        Else
-            ' DL not found or invalid
-            Debug.Print dlCell.Value & ": Invalid DL"
+    ' Loop through each word and check if it matches the desired word
+    For i = 0 To UBound(words)
+        If StrComp(words(i), "test", vbTextCompare) = 0 Or StrComp(words(i), "testing", vbTextCompare) = 0 Then
+            MsgBox "Exact word found!"
+            Exit Sub
         End If
-        
-        ' Clean up objects
-        Set olMember = Nothing
-        Set olDL = Nothing
-    Next dlCell
+    Next i
     
-    ' Clean up objects
-    Set olNS = Nothing
-    Set olApp = Nothing
+    ' If the loop completes without finding the word
+    MsgBox "Exact word not found!"
 End Sub
-Subject: Appreciation for Your Valuable Contribution to Lucy's Townhall Meeting
-
-Dear Team,
-
-I wanted to take a moment to express my heartfelt appreciation and gratitude for the outstanding work you all did in preparing the statistics that were presented at today's townhall meeting led by Lucy. It was truly delightful to see how the stats prepared by our team were utilized, highlighting the importance of the work we do. 
-
-I would like to extend a special kudos to Sanyoja and Devanshu for their exceptional efforts in putting together the regional summary stats and tracking cross-border interactions. Your dedication to closely monitoring these aspects has proven invaluable, and it was evident in the insights you provided during the townhall meeting. Your contributions have played a significant role in showcasing the significance of our work.
-
-Seeing our statistics being utilized in such a prominent setting reinforces the importance of the tasks we undertake as a team. The work we do directly influences decision-making at the senior management level, and today's townhall meeting served as a testament to that fact.
-
-I want to express my deepest gratitude to each one of you for your dedication, hard work, and professionalism. It is through your collective efforts that we continue to deliver exceptional results. The value you bring to our team and organization is immeasurable, and I am truly honored to work alongside such talented individuals.
-
-Once again, thank you for your exceptional contributions and for showcasing the significance of our work. Let's continue to strive for excellence as we tackle future challenges together.
-
-With sincere appreciation,
-
-[Your Name]
-Mayank, your expertise in compiling the corporate access leaderboard report was outstanding. The insights you presented regarding our corporate relationships and access were instrumental in shaping our discussions and actions today.
