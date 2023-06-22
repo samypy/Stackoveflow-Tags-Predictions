@@ -9,8 +9,11 @@ month_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'O
 # Convert 'Month' column to Categorical data type with custom order
 df['Month'] = pd.Categorical(df['Month'], categories=month_order, ordered=True)
 
-# Pivot the data
-pivot_df = df.pivot(index='Account ID', columns=['Year', 'Month'], values='Duration').reset_index()
+# Aggregate duplicate rows
+df_agg = df.groupby(['Account ID', 'Year', 'Month']).sum().reset_index()
+
+# Pivot the aggregated data
+pivot_df = df_agg.pivot(index='Account ID', columns=['Year', 'Month'], values='Duration').reset_index()
 
 # Rename the column headers to have year_month format
 pivot_df.columns = [f'{col[0]}_{col[1]}' if isinstance(col, tuple) else col for col in pivot_df.columns]
