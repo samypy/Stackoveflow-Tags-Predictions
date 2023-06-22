@@ -126,3 +126,25 @@ result.reset_index(drop=True, inplace=True)
 
 # Save the result to a new Excel file
 result.to_excel('grouped_data.xlsx', index=False)
+
+
+import pandas as pd
+
+# Read the Excel file
+df = pd.read_excel('your_file.xlsx', sheet_name='Sheet1')  # Replace 'your_file.xlsx' with your actual file name
+
+# Define the sort order for the months
+month_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+# Map month names to numerical representation
+month_mapping = {month: i+1 for i, month in enumerate(month_order)}
+df['Month'] = df['Month'].map(month_mapping)
+
+# Pivot the data to arrange it in the desired format
+result = df.pivot_table(index=['Year', 'Account Name'], columns='Month', values='Duration', aggfunc='sum', fill_value=0).reset_index()
+
+# Sort the columns by month
+result = result.reindex(columns=['Year', 'Account Name'] + sorted(result.columns[2:]))
+
+# Save the result to a new Excel file
+result.to_excel('grouped_data.xlsx', index=False)
