@@ -1,24 +1,24 @@
 import pandas as pd
 
-# Assuming you have a DataFrame called 'df' with columns 'Year', 'Account name', and 12 columns representing the months (1 to 12)
+# Assuming you have a DataFrame called 'df' with columns 'Year', 'Account name', and 12 columns representing the months (1 to 12) revenues
 
-# Filter the DataFrame for the years 2021, 2022, and 2023
-filtered_df = df[(df['Year'].isin([2021, 2022, 2023]))]
+# Filter the DataFrame for the years 2021 and 2022
+filtered_df = df[(df['Year'].isin([2021, 2022]))]
 
 # Create an empty DataFrame to store the rolling average result
-rolling_average_df = pd.DataFrame(columns=['Year', 'Account name'] + ['RollingAverage_' + str(month) for month in range(1, 13)])
+rolling_average_df = pd.DataFrame(columns=['Year', 'Account name'] + [str(month) for month in range(1, 13)])
 
 # Calculate the rolling average for each account and each month
 for account_name, account_data in filtered_df.groupby('Account name'):
     rolling_average = account_data.iloc[:, 2:].rolling(window=6, axis=1, min_periods=1).mean()
     rolling_average_row = [account_data['Year'].values[-1], account_name] + rolling_average.iloc[:, -1].values.tolist()
-    rolling_average_df.loc[len(rolling_average_df)] = rolling_average_row
+    rolling_average_df = rolling_average_df.append(pd.Series(rolling_average_row, index=rolling_average_df.columns), ignore_index=True)
 
-# Filter the rolling average DataFrame for the years 2022 and 2023
-rolling_average_2022_2023_df = rolling_average_df[rolling_average_df['Year'].isin([2022, 2023])]
+# Filter the rolling average DataFrame for the year 2022
+rolling_average_2022_df = rolling_average_df[rolling_average_df['Year'] == 2022]
 
 # Reset the index of the rolling average DataFrame
-rolling_average_2022_2023_df.reset_index(drop=True, inplace=True)
+rolling_average_2022_df.reset_index(drop=True, inplace=True)
 
-# Print the rolling average DataFrame for 2022 and 2023
-print(rolling_average_2022_2023_df)
+# Print the rolling average DataFrame for 2022
+print(rolling_average_2022_df)
