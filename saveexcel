@@ -3,11 +3,9 @@ import pandas as pd
 # Read the Excel file
 df = pd.read_excel('your_file.xlsx', sheet_name='Sheet1')  # Replace 'your_file.xlsx' with your actual file name
 
-# Define custom order for months
-month_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-# Convert 'Month' column to Categorical data type with custom order
-df['Month'] = pd.Categorical(df['Month'], categories=month_order, ordered=True)
+# Sort the data by year and month
+df['Month'] = pd.to_numeric(df['Month'])  # Convert 'Month' column to numeric
+df.sort_values(['Year', 'Month'], ascending=True, inplace=True)
 
 # Reset index to convert categorical index to regular index
 df.reset_index(drop=True, inplace=True)
