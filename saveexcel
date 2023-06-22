@@ -106,3 +106,23 @@ result = result.reindex(columns=['Year', 'Account Name'] + month_order)
 
 # Save the result to a new Excel file
 result.to_excel('grouped_data.xlsx', index=False)
+
+import pandas as pd
+
+# Read the Excel file
+df = pd.read_excel('your_file.xlsx', sheet_name='Sheet1')  # Replace 'your_file.xlsx' with your actual file name
+
+# Sort the DataFrame by Year and Month
+df_sorted = df.sort_values(by=['Year', 'Month'])
+
+# Create a list of month abbreviations sorted from Jan to Dec
+months_ordered = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+# Reindex the DataFrame with the sorted months
+result = df_sorted.reindex(columns=['Year', 'Account Name'] + months_ordered)
+
+# Reset the index of the DataFrame
+result.reset_index(drop=True, inplace=True)
+
+# Save the result to a new Excel file
+result.to_excel('grouped_data.xlsx', index=False)
