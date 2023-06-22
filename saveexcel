@@ -218,3 +218,22 @@ rolling_df = pd.DataFrame({
 
 # Print the updated DataFrame with rolling averages for January 2022
 print(rolling_df)
+
+import pandas as pd
+
+# Assuming you have a DataFrame called 'df' with columns 'Year', 'Accountname', and 12 columns representing the months (1 to 12)
+
+# Filter the DataFrame for the years 2021 and 2022
+filtered_df = df[(df['Year'] == 2021) | (df['Year'] == 2022)]
+
+# Calculate the rolling average for January 2022 for each account
+rolling_average = filtered_df[filtered_df[1] == 1].iloc[:, 2:].rolling(window=6, axis=1, min_periods=1).mean()
+
+# Create a new DataFrame to store the rolling average result
+rolling_df = pd.DataFrame({
+    'Accountname': filtered_df[filtered_df[1] == 1]['Accountname'],
+    'RollingAverage': rolling_average.values[:, -1]
+})
+
+# Print the updated DataFrame with rolling averages for January 2022
+print(rolling_df)
