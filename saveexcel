@@ -7,8 +7,8 @@ df = pd.read_excel('your_file.xlsx', sheet_name='Sheet1')  # Replace 'your_file.
 df['Month'] = pd.to_numeric(df['Month'])  # Convert 'Month' column to numeric
 df.sort_values(['Year', 'Month'], ascending=True, inplace=True)
 
-# Reset index to convert categorical index to regular index
-df.reset_index(drop=True, inplace=True)
+# Drop duplicate entries by considering the sum of 'Duration'
+df = df.groupby(['Year', 'Account ID', 'Month']).sum().reset_index()
 
 # Pivot the data
 pivot_df = df.pivot(index='Account ID', columns=['Year', 'Month'], values='Duration').reset_index()
