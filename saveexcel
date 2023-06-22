@@ -181,3 +181,20 @@ filtered_result[months_2023] = filtered_result.groupby('Account Name')[months_20
 
 # Print the updated DataFrame with rolling averages
 print(filtered_result)
+
+
+import pandas as pd
+
+# Assuming you have a DataFrame called 'df' with columns 'Year', 'Accountname', and 'Months' (1 to 12)
+
+# Filter the DataFrame for the years 2021 and 2022
+filtered_df = df[(df['Year'] == 2021) | (df['Year'] == 2022)]
+
+# Calculate the rolling average for January 2022 for each account
+rolling_df = filtered_df[filtered_df['Months'] == 1].groupby('Accountname')['Months'].rolling(window=6, min_periods=1).mean().reset_index()
+
+# Rename the column representing the rolling average
+rolling_df.rename(columns={'Months': 'RollingAverage'}, inplace=True)
+
+# Print the updated DataFrame with rolling averages for January 2022
+print(rolling_df)
