@@ -1,29 +1,55 @@
-Sub FindExactWord()
-    Dim sentence As String
-    Dim words() As String
-    Dim i As Integer
+Sub CalculateRollingAverage()
+    Dim ws As Worksheet
+    Dim lastRow As Long, lastCol As Long
+    Dim dataRange As Range, cell As Range
+    Dim yearColumn As Range, accountColumn As Range
+    Dim monthColumns As Range, valuesRange As Range
+    Dim month As String, year As String
+    Dim rollingAverage As Double
     
-    sentence = "This is a test sentence for testing purposes."
+    ' Set the worksheet to work with
+    Set ws = ThisWorkbook.Sheets("Sheet1") ' Replace "Sheet1" with your actual sheet name
     
-    ' Split the sentence into words
-    words = Split(sentence, " ")
+    ' Determine the last row and last column in the data range
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
     
-    ' Loop through each word and check if it matches the desired word
-    For i = 0 To UBound(words)
-        If StrComp(words(i), "test", vbTextCompare) = 0 Or StrComp(words(i), "testing", vbTextCompare) = 0 Then
-            MsgBox "Exact word found!"
-            Exit Sub
-        End If
-    Next i
+    ' Set the range for the data
+    Set dataRange = ws.Range("A1:D" & lastRow)
     
-    ' If the loop completes without finding the word
-    MsgBox "Exact word not found!"
+    ' Clear any existing data in the result range (columns C to N)
+    ws.Range("C1:N" & lastRow).ClearContents
+    
+    ' Set the range for the year column (column A)
+    Set yearColumn = ws.Range("A2:A" & lastRow)
+    
+    ' Set the range for the account column (column B)
+    Set accountColumn = ws.Range("B2:B" & lastRow)
+    
+    ' Set the range for the month columns (column C to N)
+    Set monthColumns = ws.Range("C1:N1")
+    
+    ' Set the range for the values (duration) to calculate the rolling average
+    Set valuesRange = ws.Range("D2:D" & lastRow)
+    
+    ' Loop through each unique account
+    For Each cell In accountColumn.Cells
+        ' Get the current year and month
+        year = cell.Offset(0, 1).Value
+        month = cell.Offset(0, 2).Value
+        
+        ' Find the corresponding row for the current year and account
+        Set dataRange = ws.Range("A1:D" & lastRow)
+        Set dataRange = dataRange.Find(What:=year, LookIn:=xlValues, LookAt:=xlWhole)
+        Set dataRange = ws.Range(dataRange.Offset(1, 0), ws.Cells(lastRow, lastCol))
+        
+        ' Calculate the rolling average for the current account, year, and month
+        rollingAverage = Application.WorksheetFunction.AverageIfs(valuesRange, accountColumn, cell.Value, yearColumn, year)
+        
+        ' Find the corresponding month column
+        Set cell = monthColumns.Find(What:=month, LookIn:=xlValues, LookAt:=xlWhole)
+        
+        ' Write the rolling average value to the corresponding cell
+        ws.Cells(cell.Row, cell.Column).Value = rollingAverage
+    Next cell
 End Sub
-pivot_df = df.pivot(index='Activity Type', columns='Month', values='Duration')
-df = df.groupby(['Activity Type', 'Month']).sum().reset_index()
-def extract_month(date_string):
-    date_object = datetime.strptime(date_string, '%Y-%m-%d')
-    return date_object.month
-
-# Apply the function to the 'Date' column and create a new 'Month' column
-df['Month'] = df['Date'].apply(extract_month)
