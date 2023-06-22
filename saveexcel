@@ -164,3 +164,20 @@ filtered_result[months_2023] = filtered_result.groupby('Account Name')[months_20
 
 # Print the updated DataFrame with rolling averages
 print(filtered_result)
+
+
+# Assuming 'result' is the DataFrame obtained from the previous grouping operation
+
+# Filter the DataFrame for years 2022 and 2023
+filtered_result = result[(result['Year'] == 2022) | (result['Year'] == 2023)]
+
+# Get the month columns for 2022 and 2023
+months_2022 = [col for col in filtered_result.columns if col.endswith('2022')]
+months_2023 = [col for col in filtered_result.columns if col.endswith('2023')]
+
+# Calculate the rolling average for each account for 2022 and 2023
+filtered_result[months_2022] = filtered_result.groupby('Account Name')[months_2022].rolling(window=6, min_periods=1).mean().reset_index(drop=True)
+filtered_result[months_2023] = filtered_result.groupby('Account Name')[months_2023].rolling(window=6, min_periods=1).mean().reset_index(drop=True)
+
+# Print the updated DataFrame with rolling averages
+print(filtered_result)
