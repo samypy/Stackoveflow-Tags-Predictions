@@ -17,5 +17,8 @@ for account_name, account_data in filtered_df.groupby('Account name'):
 # Filter the rolling average DataFrame for the years 2022 and 2023
 rolling_average_2022_2023_df = rolling_average_df[rolling_average_df['Year'].isin([2022, 2023])]
 
+# Reset the index of the rolling average DataFrame
+rolling_average_2022_2023_df.reset_index(drop=True, inplace=True)
+
 # Print the rolling average DataFrame for 2022 and 2023
 print(rolling_average_2022_2023_df)
