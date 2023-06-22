@@ -11,7 +11,7 @@ rolling_average_df = pd.DataFrame(columns=['Accountname'] + ['RollingAverage_' +
 # Calculate the rolling average for each account and each month
 for accountname, account_data in filtered_df.groupby('Accountname'):
     rolling_average = account_data.iloc[:, 2:].rolling(window=6, axis=1, min_periods=1).mean()
-    rolling_average_row = [accountname] + rolling_average.iloc[:, -1].tolist()
+    rolling_average_row = [accountname] + rolling_average.iloc[:, -1].values.tolist()
     rolling_average_df.loc[len(rolling_average_df)] = rolling_average_row
 
 # Print the updated DataFrame with rolling averages for all months
