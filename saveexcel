@@ -237,3 +237,37 @@ rolling_df = pd.DataFrame({
 
 # Print the updated DataFrame with rolling averages for January 2022
 print(rolling_df)
+
+
+import pandas as pd
+
+# Assuming you have a DataFrame called 'df' with columns 'Year', 'Accountname', and 12 columns representing the months (1 to 12)
+
+# Filter the DataFrame for the years 2021 and 2022
+filtered_df = df[(df['Year'] == 2021) | (df['Year'] == 2022)]
+
+# Calculate the rolling average for each account and each month
+rolling_average_df = pd.DataFrame()
+for month in range(1, 13):
+    rolling_average = filtered_df[filtered_df[month] == 1].iloc[:, 2:].rolling(window=6, axis=1, min_periods=1).mean()
+    rolling_average_df = pd.concat([rolling_average_df, rolling_average.iloc[:, -1]], axis=1)
+
+# Create a new DataFrame to store the rolling average result
+rolling_df = pd.DataFrame({
+    'Accountname': filtered_df.iloc[:, 1],
+    'RollingAverage_Jan': rolling_average_df.iloc[:, 0],
+    'RollingAverage_Feb': rolling_average_df.iloc[:, 1],
+    'RollingAverage_Mar': rolling_average_df.iloc[:, 2],
+    'RollingAverage_Apr': rolling_average_df.iloc[:, 3],
+    'RollingAverage_May': rolling_average_df.iloc[:, 4],
+    'RollingAverage_Jun': rolling_average_df.iloc[:, 5],
+    'RollingAverage_Jul': rolling_average_df.iloc[:, 6],
+    'RollingAverage_Aug': rolling_average_df.iloc[:, 7],
+    'RollingAverage_Sep': rolling_average_df.iloc[:, 8],
+    'RollingAverage_Oct': rolling_average_df.iloc[:, 9],
+    'RollingAverage_Nov': rolling_average_df.iloc[:, 10],
+    'RollingAverage_Dec': rolling_average_df.iloc[:, 11]
+})
+
+# Print the updated DataFrame with rolling averages for all months
+print(rolling_df)
