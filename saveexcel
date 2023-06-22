@@ -1,13 +1,19 @@
 import pandas as pd
 
-# Assuming you have a DataFrame called 'df' with the columns mentioned
+# Read the Excel file
+df = pd.read_excel('your_file.xlsx', sheet_name='Sheet1')  # Replace 'your_file.xlsx' with your actual file name
 
-# Create a list of month columns (excluding the first two columns: Year and Accountname)
-month_columns = df.columns[2:]
+# Define custom order for months
+month_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-# Calculate the rolling average for each month
-for month in month_columns:
-    df[month + ' Rolling Average'] = df[month].rolling(window=6, min_periods=1).mean()
+# Convert 'Month' column to Categorical data type with custom order
+df['Month'] = pd.Categorical(df['Month'], categories=month_order, ordered=True)
 
-# Print the updated DataFrame
-print(df)
+# Pivot the data
+pivot_df = df.pivot(index='Account ID', columns=['Year', 'Month'], values='Duration').reset_index()
+
+# Rename the column headers to have year_month format
+pivot_df.columns = [f'{col[0]}_{col[1]}' if isinstance(col, tuple) else col for col in pivot_df.columns]
+
+# Save the pivoted data to a new Excel file
+pivot_df.to_excel('pivot_data.xlsx', index=False)
