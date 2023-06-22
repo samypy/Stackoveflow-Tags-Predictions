@@ -22,3 +22,8 @@ rolling_average_2022_df.reset_index(drop=True, inplace=True)
 
 # Print the rolling average DataFrame for 2022
 print(rolling_average_2022_df)
+
+original_list = ["Sam", "24", [1, 2, 3, 4, 5]]
+modified_list = [str(item) for sublist in original_list for item in (sublist if isinstance(sublist, list) else [sublist])]
+
+print(modified_list)
