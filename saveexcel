@@ -6,18 +6,13 @@ import pandas as pd
 filtered_df = df[(df['Year'] == 2021) | (df['Year'] == 2022)]
 
 # Create an empty DataFrame to store the rolling average result
-rolling_average_df = pd.DataFrame(columns=range(1, 13))
+rolling_average_df = pd.DataFrame(columns=['Accountname'] + ['RollingAverage_' + str(month) for month in range(1, 13)])
 
 # Calculate the rolling average for each account and each month
 for accountname, account_data in filtered_df.groupby('Accountname'):
     rolling_average = account_data.iloc[:, 2:].rolling(window=6, axis=1, min_periods=1).mean()
-    rolling_average_df.loc[accountname] = rolling_average.iloc[:, -1]
-
-# Reset the index of the rolling average DataFrame
-rolling_average_df.reset_index(inplace=True)
-
-# Rename the columns to represent each month's rolling average
-rolling_average_df.columns = ['Accountname'] + ['RollingAverage_' + str(month) for month in range(1, 13)]
+    rolling_average_row = [accountname] + rolling_average.iloc[:, -1].tolist()
+    rolling_average_df.loc[len(rolling_average_df)] = rolling_average_row
 
 # Print the updated DataFrame with rolling averages for all months
 print(rolling_average_df)
