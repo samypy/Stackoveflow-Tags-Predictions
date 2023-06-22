@@ -2,10 +2,10 @@ Sub CalculateRollingAverage()
     Dim sourceWs As Worksheet, targetWs As Worksheet
     Dim lastRow As Long, lastCol As Long
     Dim dataRange As Range, cell As Range
-    Dim yearColumn As Range, accountColumn As Range
+    Dim yearColumn As Range, accountNameColumn As Range
     Dim monthColumns As Range, valuesRange As Range
     Dim month As String, year As String
-    Dim rollingAverage As Double
+    Dim rollingSum As Double
     
     ' Set the source worksheet to work with
     Set sourceWs = ThisWorkbook.Sheets("Sheet1") ' Replace "Sheet1" with your actual sheet name
@@ -15,7 +15,7 @@ Sub CalculateRollingAverage()
     lastCol = sourceWs.Cells(1, sourceWs.Columns.Count).End(xlToLeft).Column
     
     ' Set the range for the source data
-    Set dataRange = sourceWs.Range("A1:D" & lastRow)
+    Set dataRange = sourceWs.Range("A1:E" & lastRow)
     
     ' Set the target worksheet to write the results
     Set targetWs = ThisWorkbook.Sheets.Add(After:=sourceWs) ' Creates a new sheet after the source sheet
@@ -23,36 +23,36 @@ Sub CalculateRollingAverage()
     ' Rename the target worksheet to a meaningful name
     targetWs.Name = "Rolling Average" ' Replace with your desired name
     
-    ' Set the range for the year column (column A) in the source sheet
-    Set yearColumn = dataRange.Columns(1)
+    ' Set the range for the year column (column D) in the source sheet
+    Set yearColumn = dataRange.Columns(4)
     
-    ' Set the range for the account column (column B) in the source sheet
-    Set accountColumn = dataRange.Columns(2)
+    ' Set the range for the account name column (column B) in the source sheet
+    Set accountNameColumn = dataRange.Columns(2)
     
     ' Set the range for the month columns (column C to N) in the target sheet
     Set monthColumns = targetWs.Range("C1:N1")
     
     ' Set the range for the values (duration) to calculate the rolling average in the source sheet
-    Set valuesRange = dataRange.Columns(4)
+    Set valuesRange = dataRange.Columns(5)
     
-    ' Loop through each unique account in the source sheet
-    For Each cell In accountColumn.Cells
+    ' Loop through each unique account name in the source sheet
+    For Each cell In accountNameColumn.Cells
         ' Get the current year and month
-        year = cell.Offset(0, 1).Value
-        month = cell.Offset(0, 2).Value
+        year = cell.Offset(0, 2).Value
+        month = cell.Offset(0, 3).Value
         
-        ' Find the corresponding row for the current year and account in the source sheet
-        Set dataRange = sourceWs.Range("A1:D" & lastRow)
+        ' Find the corresponding row for the current year and account name in the source sheet
+        Set dataRange = sourceWs.Range("A1:E" & lastRow)
         Set dataRange = dataRange.Find(What:=year, LookIn:=xlValues, LookAt:=xlWhole)
         Set dataRange = sourceWs.Range(dataRange.Offset(1, 0), sourceWs.Cells(lastRow, lastCol))
         
-        ' Calculate the rolling average for the current account, year, and month in the source sheet
-        rollingAverage = Application.WorksheetFunction.AverageIfs(valuesRange, accountColumn, cell.Value, yearColumn, year)
+        ' Calculate the rolling sum for the current account name, year, and month in the source sheet
+        rollingSum = Application.WorksheetFunction.SumIfs(valuesRange, accountNameColumn, cell.Value, yearColumn, year)
         
         ' Find the corresponding month column in the target sheet
         Set cell = monthColumns.Find(What:=month, LookIn:=xlValues, LookAt:=xlWhole)
         
-        ' Write the rolling average value to the corresponding cell in the target sheet
-        targetWs.Cells(cell.Row, cell.Column).Value = rollingAverage
+        ' Write the rolling sum value to the corresponding cell in the target sheet
+        targetWs.Cells(cell.Row, cell.Column).Value = rollingSum
     Next cell
 End Sub
