@@ -1,29 +1,13 @@
 import pandas as pd
 
-# Assuming you have a DataFrame called 'df' with columns 'Year', 'Account name', and 12 columns representing the months (1 to 12) revenues
+# Assuming you have a DataFrame called 'df' with the columns mentioned
 
-# Filter the DataFrame for the years 2021 and 2022
-filtered_df = df[(df['Year'].isin([2021, 2022]))]
+# Create a list of month columns (excluding the first two columns: Year and Accountname)
+month_columns = df.columns[2:]
 
-# Create an empty DataFrame to store the rolling average result
-rolling_average_df = pd.DataFrame(columns=['Year', 'Account name'] + [str(month) for month in range(1, 13)])
+# Calculate the rolling average for each month
+for month in month_columns:
+    df[month + ' Rolling Average'] = df[month].rolling(window=6, min_periods=1).mean()
 
-# Calculate the rolling average for each account and each month
-for account_name, account_data in filtered_df.groupby('Account name'):
-    rolling_average = account_data.iloc[:, 2:].rolling(window=6, axis=1, min_periods=1).mean()
-    rolling_average_row = [account_data['Year'].values[-1], account_name] + rolling_average.iloc[:, -1].values.tolist()
-    rolling_average_df = rolling_average_df.append(pd.Series(rolling_average_row, index=rolling_average_df.columns), ignore_index=True)
-
-# Filter the rolling average DataFrame for the year 2022
-rolling_average_2022_df = rolling_average_df[rolling_average_df['Year'] == 2022]
-
-# Reset the index of the rolling average DataFrame
-rolling_average_2022_df.reset_index(drop=True, inplace=True)
-
-# Print the rolling average DataFrame for 2022
-print(rolling_average_2022_df)
-
-original_list = ["Sam", "24", [1, 2, 3, 4, 5]]
-modified_list = [str(item) for sublist in original_list for item in (sublist if isinstance(sublist, list) else [sublist])]
-
-print(modified_list)
+# Print the updated DataFrame
+print(df)
