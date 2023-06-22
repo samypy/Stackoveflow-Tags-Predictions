@@ -12,7 +12,7 @@ rolling_average_df = pd.DataFrame(columns=['Year', 'Account name'] + ['RollingAv
 for account_name, account_data in filtered_df.groupby('Account name'):
     rolling_average = account_data.iloc[:, 2:].rolling(window=6, axis=1, min_periods=1).mean()
     rolling_average_row = [account_data['Year'].values[-1], account_name] + rolling_average.iloc[:, -1].values.tolist()
-    rolling_average_df.loc[len(rolling_average_df)] = rolling_average_row
+    rolling_average_df = rolling_average_df.append(pd.Series(rolling_average_row, index=rolling_average_df.columns), ignore_index=True)
 
 # Filter the rolling average DataFrame for the years 2022 and 2023
 rolling_average_2022_2023_df = rolling_average_df[rolling_average_df['Year'].isin([2022, 2023])]
