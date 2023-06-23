@@ -29,3 +29,5 @@ all_data = pd.DataFrame(index=combinations).reset_index()
 merged_df = pd.merge(all_data, df, on=['Account', 'Year', 'Month'], how='left').fillna({'Duration': 0})
 
 print(merged_df)
+
+pivot_table = pivot_table.rename(index={'2022': '6 Months Rolling 2022', '2023': '6 Months Rolling 2023'})
