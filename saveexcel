@@ -22,7 +22,9 @@ df['RollingAverage'] = df.groupby('Accountname')['Duration'].transform(lambda x:
 # Filter data for 2022 and 2023
 filtered_df = df[df['Year'].isin([2022, 2023])]
 
-# Pivot the DataFrame to have months as columns
+# Pivot the DataFrame to have months as columns and arrange them in order
+month_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+filtered_df['Month'] = pd.Categorical(filtered_df['Month'], categories=month_order, ordered=True)
 result = filtered_df.pivot_table(index=['Accountname', 'Year'], columns='Month', values='RollingAverage')
 
 print(result)
