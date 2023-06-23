@@ -1,20 +1,25 @@
 import pandas as pd
 
-# Read the Excel file
-df = pd.read_excel('your_file.xlsx', sheet_name='Sheet1')  # Replace 'your_file.xlsx' with your actual file name
+# Sample data
+data = {
+    'Accountname': ['Account1', 'Account2', 'Account1', 'Account2', 'Account1'],
+    'Year': [2021, 2022, 2022, 2023, 2023],
+    'Month': ['Dec', 'Jan', 'Feb', 'Jan', 'Feb'],
+    'Duration': [20, 10, 15, 12, 8]
+}
 
-# Sort the data by year and month
-df['Month'] = pd.to_numeric(df['Month'])  # Convert 'Month' column to numeric
-df.sort_values(['Year', 'Month'], ascending=True, inplace=True)
+df = pd.DataFrame(data)
 
-# Drop duplicate entries by considering the sum of 'Duration'
-df = df.groupby(['Year', 'Account ID', 'Month']).sum().reset_index()
+# Create a random date column based on 'Year' and 'Month'
+df['Date'] = pd.to_datetime(df['Year'].astype(str) + df['Month'], format='%Y%b')
 
-# Pivot the data
-pivot_df = df.pivot(index='Account ID', columns=['Year', 'Month'], values='Duration').reset_index()
+# Filter data for 2021, 2022, and 2023
+filtered_df = df[df['Year'].isin([2021, 2022, 2023])]
 
-# Rename the column headers to have year_month format
-pivot_df.columns = [f'{col[0]}_{col[1]}' if isinstance(col, tuple) else col for col in pivot_df.columns]
+# Sort the DataFrame by date
+filtered_df = filtered_df.sort_values('Date')
 
-# Save the pivoted data to a new Excel file
-pivot_df.to_excel('pivot_data.xlsx', index=False)
+# Calculate rolling average for each account and month
+result = filtered_df.groupby(['Accountname', 'Year', 'Month'])['Duration'].rolling(window=6, min_periods=1).mean().unstack('Month')
+
+print(result)
