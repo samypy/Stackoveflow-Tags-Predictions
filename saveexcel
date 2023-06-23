@@ -14,7 +14,8 @@ df = pd.DataFrame(data)
 df['Date'] = pd.to_datetime(df['Year'].astype(str) + df['Month'], format='%Y%b')
 
 # Aggregate data by month
-monthly_df = df.groupby(['Accountname', 'Year', 'Month']).agg({'Duration': 'sum'}).reset_index()
+monthly_df = df.groupby(['Accountname', pd.Grouper(key='Date', freq='M')]).agg({'Duration': 'sum'}).reset_index()
+monthly_df['Month'] = monthly_df['Date'].dt.strftime('%b')
 
 # Sort the DataFrame by date
 monthly_df = monthly_df.sort_values(['Accountname', 'Date'])
