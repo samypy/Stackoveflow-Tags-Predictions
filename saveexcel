@@ -17,8 +17,9 @@ df['Year'] = df['Date'].dt.year
 df['Month'] = df['Date'].dt.strftime('%b')
 
 # Create a range of all possible years and months
-all_years = range(df['Year'].min(), df['Year'].max() + 1)
+all_years = [str(year) for year in range(df['Year'].min(), df['Year'].max() + 1)]
 all_months = pd.date_range(start='Jan', end='Dec', freq='MS').strftime('%b')
+
 
 # Create a DataFrame with all possible combinations of Account, Year, and Month
 combinations = pd.MultiIndex.from_product([df['Account'].unique(), all_years, all_months], names=['Account', 'Year', 'Month'])
