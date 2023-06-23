@@ -13,14 +13,17 @@ df = pd.DataFrame(data)
 # Create a random date column based on 'Year' and 'Month'
 df['Date'] = pd.to_datetime(df['Year'].astype(str) + df['Month'], format='%Y%b')
 
-# Filter data for 2021, 2022, and 2023
-filtered_df = df[df['Year'].isin([2021, 2022, 2023])]
+# Filter data for 2022 and 2023
+filtered_df = df[df['Year'].isin([2022, 2023])]
 
 # Sort the DataFrame by date
 filtered_df = filtered_df.sort_values(['Accountname', 'Date'])
 
-# Calculate rolling average for each account
-filtered_df['RollingAverage'] = filtered_df.groupby('Accountname')['Duration'].rolling(window=6, min_periods=1).mean().reset_index(level=0, drop=True)
+# Calculate the average for each account over the last 6 months
+filtered_df['RollingAverage'] = filtered_df.groupby('Accountname')['Duration'].transform(lambda x: x.rolling(6, min_periods=1).mean())
+
+# Filter only the data for 2022 and 2023
+filtered_df = filtered_df[filtered_df['Year'].isin([2022, 2023])]
 
 # Pivot the DataFrame to have months as columns
 result = filtered_df.pivot_table(index=['Accountname', 'Year'], columns='Month', values='RollingAverage')
