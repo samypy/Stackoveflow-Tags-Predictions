@@ -23,11 +23,11 @@ all_data = pd.DataFrame(index=combinations).reset_index()
 # Merge the original data with all possible combinations, filling missing values with zero duration
 merged_df = pd.merge(all_data, df, on=['Accountname', 'Month'], how='left').fillna({'Duration': 0})
 
-# Sort the DataFrame by Accountname and Month
-merged_df = merged_df.sort_values(['Accountname', 'Month'])
+# Sort the DataFrame by Accountname and Date
+merged_df = merged_df.sort_values(['Accountname', 'Date'])
 
-# Calculate the rolling average for each account over the last 6 months
-merged_df['RollingAverage'] = merged_df.groupby('Accountname')['Duration'].transform(lambda x: x.rolling(6, min_periods=1).mean())
+# Calculate the rolling average for each account over the last 6 months, considering zero duration for missing months
+merged_df['RollingAverage'] = merged_df.groupby('Accountname')['Duration'].transform(lambda x: x.rolling(6, min_periods=1).mean()).fillna(0)
 
 # Filter data for 2022 and 2023
 filtered_df = merged_df[merged_df['Year'].isin([2022, 2023])]
