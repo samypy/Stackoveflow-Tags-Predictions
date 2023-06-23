@@ -19,13 +19,10 @@ filtered_df = df[df['Year'].isin([2021, 2022, 2023])]
 # Sort the DataFrame by date
 filtered_df = filtered_df.sort_values(['Accountname', 'Date'])
 
-# Calculate rolling average for each account and month
-filtered_df['RollingAverage'] = filtered_df.groupby(['Accountname', 'Year', 'Month'])['Duration'].transform(lambda x: x.rolling(window=6, min_periods=1).mean())
-
-# Drop duplicate entries
-filtered_df = filtered_df.drop_duplicates(['Accountname', 'Year', 'Month'])
+# Calculate rolling average for each account
+filtered_df['RollingAverage'] = filtered_df.groupby('Accountname')['Duration'].rolling(window=6, min_periods=1).mean().reset_index(level=0, drop=True)
 
 # Pivot the DataFrame to have months as columns
-result = filtered_df.pivot(index=['Accountname', 'Year'], columns='Month', values='RollingAverage')
+result = filtered_df.pivot_table(index=['Accountname', 'Year'], columns='Month', values='RollingAverage')
 
 print(result)
