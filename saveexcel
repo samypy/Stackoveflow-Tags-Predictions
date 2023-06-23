@@ -13,21 +13,25 @@ df = pd.DataFrame(data)
 # Create a random date column based on 'Year' and 'Month'
 df['Date'] = pd.to_datetime(df['Year'].astype(str) + df['Month'], format='%Y%b')
 
-# Create a range of months from the minimum to the maximum month
-month_range = pd.date_range(df['Date'].min(), df['Date'].max(), freq='M').strftime('%b')
+# Aggregate data by month
+monthly_df = df.groupby(['Accountname', pd.Grouper(key='Date', freq='M')]).agg({'Duration': 'sum'}).reset_index()
+monthly_df['Month'] = monthly_df['Date'].dt.strftime('%b')
 
-# Create a DataFrame with all possible combinations of Accountname and Month
-combinations = pd.MultiIndex.from_product([df['Accountname'].unique(), month_range], names=['Accountname', 'Month'])
-all_data = pd.DataFrame(index=combinations).reset_index()
+# Create a range of all possible months
+month_range = pd.date_range(start='2022-01-01', end='2023-12-31', freq='M').strftime('%b')
 
-# Merge the original data with all possible combinations, filling missing values with zero duration
-merged_df = pd.merge(all_data, df, on=['Accountname', 'Month'], how='left').fillna({'Duration': 0})
+# Expand the DataFrame to include all possible months for each account
+expanded_df = pd.MultiIndex.from_product([monthly_df['Accountname'].unique(), month_range], names=['Accountname', 'Month'])
+expanded_df = pd.DataFrame(index=expanded_df).reset_index()
 
-# Sort the DataFrame by Accountname and Date
-merged_df = merged_df.sort_values(['Accountname', 'Date'])
+# Merge the expanded DataFrame with the monthly data, filling missing values with 0
+merged_df = pd.merge(expanded_df, monthly_df, on=['Accountname', 'Month'], how='left').fillna({'Duration': 0})
 
-# Calculate the rolling average for each account over the last 6 months, considering zero duration for missing months
-merged_df['RollingAverage'] = merged_df.groupby('Accountname')['Duration'].transform(lambda x: x.rolling(6, min_periods=1).mean()).fillna(0)
+# Sort the DataFrame by Accountname and Month
+merged_df = merged_df.sort_values(['Accountname', 'Month'])
+
+# Calculate the rolling average for each account over the last 6 months, considering 0 duration for missing months
+merged_df['RollingAverage'] = merged_df.groupby('Accountname')['Duration'].transform(lambda x: x.rolling(6, min_periods=1).mean())
 
 # Filter data for 2022 and 2023
 filtered_df = merged_df[merged_df['Year'].isin([2022, 2023])]
