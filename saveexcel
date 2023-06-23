@@ -2,43 +2,29 @@ import pandas as pd
 
 # Sample data
 data = {
-    'Accountname': ['Account1', 'Account2', 'Account1', 'Account2', 'Account1'],
-    'Year': [2021, 2022, 2022, 2023, 2023],
-    'Month': ['Dec', 'Jan', 'Feb', 'Jan', 'Feb'],
+    'Account': ['Account1', 'Account2', 'Account1', 'Account2', 'Account1'],
+    'Date': ['2021-12-01', '2022-01-01', '2022-02-01', '2023-01-01', '2023-02-01'],
     'Duration': [20, 10, 15, 12, 8]
 }
 
 df = pd.DataFrame(data)
 
-# Create a random date column based on 'Year' and 'Month'
-df['Date'] = pd.to_datetime(df['Year'].astype(str) + df['Month'], format='%Y%b')
+# Convert 'Date' column to datetime type
+df['Date'] = pd.to_datetime(df['Date'])
 
-# Aggregate data by month
-monthly_df = df.groupby(['Accountname', pd.Grouper(key='Date', freq='M')]).agg({'Duration': 'sum'}).reset_index()
-monthly_df['Month'] = monthly_df['Date'].dt.strftime('%b')
+# Extract 'Year' and 'Month' from 'Date'
+df['Year'] = df['Date'].dt.year
+df['Month'] = df['Date'].dt.strftime('%b')
 
-# Create a range of all possible months
-month_range = pd.date_range(start='2022-01-01', end='2023-12-31', freq='M').strftime('%b')
+# Create a range of all possible years and months
+all_years = range(df['Year'].min(), df['Year'].max() + 1)
+all_months = pd.date_range(start='Jan', end='Dec', freq='MS').strftime('%b')
 
-# Expand the DataFrame to include all possible months for each account
-expanded_df = pd.MultiIndex.from_product([monthly_df['Accountname'].unique(), month_range], names=['Accountname', 'Month'])
-expanded_df = pd.DataFrame(index=expanded_df).reset_index()
+# Create a DataFrame with all possible combinations of Account, Year, and Month
+combinations = pd.MultiIndex.from_product([df['Account'].unique(), all_years, all_months], names=['Account', 'Year', 'Month'])
+all_data = pd.DataFrame(index=combinations).reset_index()
 
-# Merge the expanded DataFrame with the monthly data, filling missing values with 0
-merged_df = pd.merge(expanded_df, monthly_df, on=['Accountname', 'Month'], how='left').fillna({'Duration': 0})
+# Merge the original data with all possible combinations, filling missing values with 0 duration
+merged_df = pd.merge(all_data, df, on=['Account', 'Year', 'Month'], how='left').fillna({'Duration': 0})
 
-# Sort the DataFrame by Accountname and Month
-merged_df = merged_df.sort_values(['Accountname', 'Month'])
-
-# Calculate the rolling average for each account over the last 6 months, considering 0 duration for missing months
-merged_df['RollingAverage'] = merged_df.groupby('Accountname')['Duration'].transform(lambda x: x.rolling(6, min_periods=1).mean())
-
-# Filter data for 2022 and 2023
-filtered_df = merged_df[merged_df['Year'].isin([2022, 2023])]
-
-# Pivot the DataFrame to have months as columns and arrange them in order
-month_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-filtered_df['Month'] = pd.Categorical(filtered_df['Month'], categories=month_order, ordered=True)
-result = filtered_df.pivot_table(index=['Accountname', 'Year'], columns='Month', values='RollingAverage')
-
-print(result)
+print(merged_df)
