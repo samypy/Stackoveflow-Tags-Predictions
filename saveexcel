@@ -1,35 +1,20 @@
 import pandas as pd
 
-# Sample data
-data = {
-    'Account': ['Account1', 'Account2', 'Account1', 'Account2', 'Account1'],
-    'Date': ['2021-12-01', '2022-01-01', '2022-02-01', '2023-01-01', '2023-02-01'],
-    'Duration': [20, 10, 15, 12, 8]
-}
+# Read the Excel file
+excel_file = 'path/to/your/excel/file.xlsx'
+excel_data = pd.read_excel(excel_file, sheet_name=None)
 
-df = pd.DataFrame(data)
+# Combine NAM sheets
+nam_df = pd.concat([excel_data['NAM 1'], excel_data['NAM 2']])
 
-# Convert 'Date' column to datetime type
-df['Date'] = pd.to_datetime(df['Date'])
+# Combine EMEA sheets
+emea_df = pd.concat([excel_data['EMEA 1'], excel_data['EMEA 2']])
 
-# Extract 'Year' and 'Month' from 'Date'
-df['Year'] = df['Date'].dt.year
-df['Month'] = df['Date'].dt.strftime('%b')
+# Combine APAC sheets
+apac_df = pd.concat([excel_data['APAC 1'], excel_data['APAC 2']])
 
-# Create a range of all possible years and months
-all_years = [str(year) for year in range(df['Year'].min(), df['Year'].max() + 1)]
-all_months = pd.date_range(start='Jan', end='Dec', freq='MS').strftime('%b')
+# Access the Global sheet
+global_df = excel_data['Global']
 
+# Perform further operations or analysis on the combined dataframes
 
-# Create a DataFrame with all possible combinations of Account, Year, and Month
-combinations = pd.MultiIndex.from_product([df['Account'].unique(), all_years, all_months], names=['Account', 'Year', 'Month'])
-all_data = pd.DataFrame(index=combinations).reset_index()
-
-# Merge the original data with all possible combinations, filling missing values with 0 duration
-merged_df = pd.merge(all_data, df, on=['Account', 'Year', 'Month'], how='left').fillna({'Duration': 0})
-
-print(merged_df)
-
-pivot_table = pivot_table.rename(index={'2022': '6 Months Rolling 2022', '2023': '6 Months Rolling 2023'})
-pivot_table = pivot_table.rename_axis('Month').reset_index()
-pivot_table.index = pivot_table.index.to_series().ffill()
