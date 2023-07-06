@@ -44,3 +44,16 @@ pivot_table = pd.pivot_table(df, values='Duration', index=['Year', 'Month'], col
 
 # Display the pivot table
 print(pivot_table)
+
+import pandas as pd
+
+# Assuming your dataframe is named 'df'
+
+# Filter the dataframe for years 2022 and 2023
+filtered_df = df[df['Year'].isin([2022, 2023])]
+
+# Calculate the rolling average for each product
+rolling_average = filtered_df.groupby('Product')['Duration'].rolling(window=6, min_periods=1).mean().reset_index()
+
+# Display the rolling average
+print(rolling_average)
