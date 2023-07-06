@@ -18,3 +18,18 @@ global_df = excel_data['Global']
 
 # Perform further operations or analysis on the combined dataframes
 
+import pandas as pd
+
+# Assuming your dataframe is named 'df'
+
+# Define the months to be removed
+months_to_remove = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+# Create a boolean condition to filter rows
+condition = (df['year'] != 2023) | (~df['month'].isin(months_to_remove))
+
+# Apply the condition to the dataframe
+filtered_df = df[condition]
+
+# Display the resulting dataframe
+print(filtered_df)
