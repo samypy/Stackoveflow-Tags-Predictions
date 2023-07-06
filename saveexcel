@@ -33,3 +33,14 @@ filtered_df = df[condition]
 
 # Display the resulting dataframe
 print(filtered_df)
+
+
+import pandas as pd
+
+# Assuming your dataframe is named 'df'
+
+# Create the pivot table
+pivot_table = pd.pivot_table(df, values='Duration', index=['Year', 'Month'], columns='Product', aggfunc='sum')
+
+# Display the pivot table
+print(pivot_table)
