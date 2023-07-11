@@ -1,59 +1,78 @@
-import pandas as pd
-
-# Read the Excel file
-excel_file = 'path/to/your/excel/file.xlsx'
-excel_data = pd.read_excel(excel_file, sheet_name=None)
-
-# Combine NAM sheets
-nam_df = pd.concat([excel_data['NAM 1'], excel_data['NAM 2']])
-
-# Combine EMEA sheets
-emea_df = pd.concat([excel_data['EMEA 1'], excel_data['EMEA 2']])
-
-# Combine APAC sheets
-apac_df = pd.concat([excel_data['APAC 1'], excel_data['APAC 2']])
-
-# Access the Global sheet
-global_df = excel_data['Global']
-
-# Perform further operations or analysis on the combined dataframes
-
-import pandas as pd
-
-# Assuming your dataframe is named 'df'
-
-# Define the months to be removed
-months_to_remove = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-# Create a boolean condition to filter rows
-condition = (df['year'] != 2023) | (~df['month'].isin(months_to_remove))
-
-# Apply the condition to the dataframe
-filtered_df = df[condition]
-
-# Display the resulting dataframe
-print(filtered_df)
-
-
-import pandas as pd
-
-# Assuming your dataframe is named 'df'
-
-# Create the pivot table
-pivot_table = pd.pivot_table(df, values='Duration', index=['Year', 'Month'], columns='Product', aggfunc='sum')
-
-# Display the pivot table
-print(pivot_table)
-
-import pandas as pd
-
-# Assuming your dataframe is named 'df'
-
-# Filter the dataframe for years 2022 and 2023
-filtered_df = df[df['Year'].isin([2022, 2023])]
-
-# Calculate the rolling average for each product
-rolling_average = filtered_df.groupby('Product')['Duration'].rolling(window=6, min_periods=1).mean().reset_index()
-
-# Display the rolling average
-print(rolling_average)
+Sub CopySheetsToNewWorkbook()
+    Dim srcWB As Workbook
+    Dim newWB As Workbook
+    Dim srcSheet As Worksheet
+    Dim newSheet As Worksheet
+    Dim srcChart As ChartObject
+    Dim srcTable As ListObject
+    Dim srcSlicer As SlicerCache
+    Dim newChart As ChartObject
+    Dim newTable As ListObject
+    Dim newSlicer As SlicerCache
+    
+    ' Set the source workbook
+    Set srcWB = ThisWorkbook
+    
+    ' Create a new workbook
+    Set newWB = Workbooks.Add
+    
+    ' Loop through each sheet in the source workbook
+    For Each srcSheet In srcWB.Sheets
+        ' Copy the sheet to the new workbook
+        srcSheet.Copy After:=newWB.Sheets(newWB.Sheets.Count)
+        Set newSheet = newWB.Sheets(newWB.Sheets.Count)
+        
+        ' Copy charts to the new sheet
+        For Each srcChart In srcSheet.ChartObjects
+            srcChart.Copy
+            newSheet.Paste
+            Set newChart = newSheet.ChartObjects(newSheet.ChartObjects.Count)
+            newChart.Top = srcChart.Top
+            newChart.Left = srcChart.Left
+        Next srcChart
+        
+        ' Copy tables to the new sheet
+        For Each srcTable In srcSheet.ListObjects
+            srcTable.Range.Copy
+            newSheet.Cells(newSheet.Cells.Count).End(xlUp).Offset(2).PasteSpecial xlPasteAll
+            Set newTable = newSheet.ListObjects(newSheet.ListObjects.Count)
+        Next srcTable
+        
+        ' Copy slicers to the new workbook
+        For Each srcSlicer In srcWB.SlicerCaches
+            srcSlicer.Copy
+            newWB.SlicerCaches.Add2 srcSlicer.SourceName, srcSlicer.SlicerCacheType
+            Set newSlicer = newWB.SlicerCaches(newWB.SlicerCaches.Count)
+            newSlicer.Slicers.Add newSheet, , srcSlicer.Name, srcSlicer.Name, , , , , , , True
+        Next srcSlicer
+        
+        ' Update pivot tables and slicers to reference new workbook
+        For Each newSheet In newWB.Sheets
+            For Each newTable In newSheet.ListObjects
+                For Each srcTable In srcSheet.ListObjects
+                    If srcTable.Name = newTable.Name Then
+                        For Each pt In newSheet.PivotTables
+                            pt.ChangePivotCache newWB.PivotCaches.Create( _
+                                SourceType:=xlDatabase, _
+                                SourceData:=newTable, _
+                                Version:=xlPivotTableVersion14)
+                        Next pt
+                        Exit For
+                    End If
+                Next srcTable
+            Next newTable
+        Next newSheet
+        
+        ' Clean up the new sheet object
+        Set newSheet = Nothing
+    Next srcSheet
+    
+    ' Save the new workbook
+    newWB.SaveAs "C:\Path\To\NewWorkbook.xlsx"
+    
+    ' Clean up objects
+    Set newWB = Nothing
+    Set srcWB = Nothing
+    
+    MsgBox "Sheets copied to new workbook successfully!"
+End Sub
