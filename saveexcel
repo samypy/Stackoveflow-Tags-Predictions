@@ -1,78 +1,56 @@
-Sub CopySheetsToNewWorkbook()
-    Dim srcWB As Workbook
-    Dim newWB As Workbook
-    Dim srcSheet As Worksheet
-    Dim newSheet As Worksheet
-    Dim srcChart As ChartObject
-    Dim srcTable As ListObject
-    Dim srcSlicer As SlicerCache
-    Dim newChart As ChartObject
-    Dim newTable As ListObject
-    Dim newSlicer As SlicerCache
+Sub CreateNewFileWithSheets()
+    Dim wbSource As Workbook, wbNew As Workbook
+    Dim wsData As Worksheet, wsChart As Worksheet
+    Dim pt As PivotTable, sl As Slicer
+    Dim newFileName As String
     
-    ' Set the source workbook
-    Set srcWB = ThisWorkbook
+    ' Set the source workbook and sheets
+    Set wbSource = ThisWorkbook
+    Set wsData = wbSource.Sheets("over_All_data")
+    Set wsChart = wbSource.Sheets("Over_All_Chart")
     
     ' Create a new workbook
-    Set newWB = Workbooks.Add
+    Set wbNew = Workbooks.Add
     
-    ' Loop through each sheet in the source workbook
-    For Each srcSheet In srcWB.Sheets
-        ' Copy the sheet to the new workbook
-        srcSheet.Copy After:=newWB.Sheets(newWB.Sheets.Count)
-        Set newSheet = newWB.Sheets(newWB.Sheets.Count)
-        
-        ' Copy charts to the new sheet
-        For Each srcChart In srcSheet.ChartObjects
-            srcChart.Copy
-            newSheet.Paste
-            Set newChart = newSheet.ChartObjects(newSheet.ChartObjects.Count)
-            newChart.Top = srcChart.Top
-            newChart.Left = srcChart.Left
-        Next srcChart
-        
-        ' Copy tables to the new sheet
-        For Each srcTable In srcSheet.ListObjects
-            srcTable.Range.Copy
-            newSheet.Cells(newSheet.Cells.Count).End(xlUp).Offset(2).PasteSpecial xlPasteAll
-            Set newTable = newSheet.ListObjects(newSheet.ListObjects.Count)
-        Next srcTable
-        
-        ' Copy slicers to the new workbook
-        For Each srcSlicer In srcWB.SlicerCaches
-            srcSlicer.Copy
-            newWB.SlicerCaches.Add2 srcSlicer.SourceName, srcSlicer.SlicerCacheType
-            Set newSlicer = newWB.SlicerCaches(newWB.SlicerCaches.Count)
-            newSlicer.Slicers.Add newSheet, , srcSlicer.Name, srcSlicer.Name, , , , , , , True
-        Next srcSlicer
-        
-        ' Update pivot tables and slicers to reference new workbook
-        For Each newSheet In newWB.Sheets
-            For Each newTable In newSheet.ListObjects
-                For Each srcTable In srcSheet.ListObjects
-                    If srcTable.Name = newTable.Name Then
-                        For Each pt In newSheet.PivotTables
-                            pt.ChangePivotCache newWB.PivotCaches.Create( _
-                                SourceType:=xlDatabase, _
-                                SourceData:=newTable, _
-                                Version:=xlPivotTableVersion14)
-                        Next pt
-                        Exit For
-                    End If
-                Next srcTable
-            Next newTable
-        Next newSheet
-        
-        ' Clean up the new sheet object
-        Set newSheet = Nothing
-    Next srcSheet
+    ' Copy the data sheet
+    wsData.Copy Before:=wbNew.Sheets(1)
+    Set wsData = wbNew.Sheets(1)
+    wsData.Name = "over_All_data"
+    
+    ' Copy the chart sheet
+    wsChart.Copy After:=wbNew.Sheets(wbNew.Sheets.Count)
+    Set wsChart = wbNew.Sheets(wbNew.Sheets.Count)
+    wsChart.Name = "Over_All_Chart"
+    
+    ' Copy the pivot table
+    Set pt = wsData.PivotTables("PivotTable10")
+    pt.TableRange2.Copy Destination:=wsData.Range("A204")
+    
+    ' Update pivot table data source
+    pt.ChangePivotCache wbNew.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=wsData.Range("A1:G199"))
+    
+    ' Copy slicers
+    For Each sl In wsChart.Slicers
+        sl.Copy
+        wsData.Activate
+        wsData.Shapes.Paste
+        Application.CutCopyMode = False
+    Next sl
     
     ' Save the new workbook
-    newWB.SaveAs "C:\Path\To\NewWorkbook.xlsx"
+    newFileName = "NewWorkbook.xlsx" ' Modify the filename as needed
+    wbNew.SaveAs newFileName
+    
+    ' Close the new workbook
+    wbNew.Close SaveChanges:=False
     
     ' Clean up objects
-    Set newWB = Nothing
-    Set srcWB = Nothing
+    Set wbSource = Nothing
+    Set wbNew = Nothing
+    Set wsData = Nothing
+    Set wsChart = Nothing
+    Set pt = Nothing
+    Set sl = Nothing
     
-    MsgBox "Sheets copied to new workbook successfully!"
+    MsgBox "New Excel file created successfully!"
 End Sub
