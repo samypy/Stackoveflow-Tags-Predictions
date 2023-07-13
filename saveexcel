@@ -1,6 +1,6 @@
 Sub CreateNewFileWithSheets()
     Dim wbSource As Workbook, wbNew As Workbook
-    Dim wsData As Worksheet, wsChart As Worksheet
+    Dim wsData As Worksheet, wsChart As Worksheet, wsTemp As Worksheet
     Dim pt As PivotTable, sl As Slicer
     Dim newFileName As String
     
@@ -17,10 +17,11 @@ Sub CreateNewFileWithSheets()
     Set wsData = wbNew.Sheets(1)
     wsData.Name = "over_All_data"
     
-    ' Copy the chart sheet
+    ' Convert the chart sheet to a regular worksheet
     wsChart.Copy After:=wbNew.Sheets(wbNew.Sheets.Count)
-    Set wsChart = wbNew.Sheets(wbNew.Sheets.Count)
-    wsChart.Name = "Over_All_Chart"
+    Set wsTemp = wbNew.Sheets(wbNew.Sheets.Count)
+    wsTemp.Name = "Over_All_Chart"
+    wsTemp.Move After:=wsData
     
     ' Copy the pivot table
     Set pt = wsData.PivotTables("PivotTable10")
@@ -30,12 +31,17 @@ Sub CreateNewFileWithSheets()
     pt.ChangePivotCache wbNew.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=wsData.Range("A1:G199"))
     
     ' Copy slicers
-    For Each sl In wsChart.Slicers
+    For Each sl In wsTemp.Slicers
         sl.Copy
         wsData.Activate
         wsData.Shapes.Paste
         Application.CutCopyMode = False
     Next sl
+    
+    ' Delete the temporary chart sheet
+    Application.DisplayAlerts = False
+    wsTemp.Delete
+    Application.DisplayAlerts = True
     
     ' Save the new workbook
     newFileName = "NewWorkbook.xlsx" ' Modify the filename as needed
@@ -49,6 +55,7 @@ Sub CreateNewFileWithSheets()
     Set wbNew = Nothing
     Set wsData = Nothing
     Set wsChart = Nothing
+    Set wsTemp = Nothing
     Set pt = Nothing
     Set sl = Nothing
     
