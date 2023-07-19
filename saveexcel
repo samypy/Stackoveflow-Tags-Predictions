@@ -1,52 +1,35 @@
-Sub CreateNewFileWithSheets()
-    Dim wbSource As Workbook, wbNew As Workbook
-    Dim wsData As Worksheet, wsChart As Worksheet, wsSlicers As Worksheet
-    Dim pt As PivotTable
-    Dim newFileName As String
+Sub ExtractIDs()
+    Dim inputSentence As String
+    Dim regex As Object
+    Dim matches As Object
+    Dim match As Object
+    Dim extractedIDs As String
+    Dim pattern As String
     
-    ' Set the source workbook and sheets
-    Set wbSource = ThisWorkbook
-    Set wsData = wbSource.Sheets("over_All_data")
-    Set wsChart = wbSource.Sheets("Over_All_Chart")
+    ' Replace this with your input sentence
+    inputSentence = "Your sentence containing IDs like ab12345 and xy98765."
+
+    ' Define the regular expression pattern for IDs with 2 alphabets followed by 5 digits
+    pattern = "([A-Za-z]{2}\d{5})"
     
-    ' Create a new workbook
-    Set wbNew = Workbooks.Add
+    ' Create a new RegExp object
+    Set regex = CreateObject("VBScript.RegExp")
     
-    ' Copy the data sheet
-    wsData.Copy Before:=wbNew.Sheets(1)
-    Set wsData = wbNew.Sheets(1)
-    wsData.Name = "over_All_data"
+    With regex
+        .Global = True ' Match all occurrences in the sentence
+        .MultiLine = True ' Match across multiple lines if the sentence spans multiple lines
+        .IgnoreCase = True ' Case-insensitive matching
+        .pattern = pattern ' Set the pattern for the IDs
+    End With
     
-    ' Copy the chart sheet
-    wsChart.Copy After:=wbNew.Sheets(wbNew.Sheets.Count)
-    Set wsChart = wbNew.Sheets(wbNew.Sheets.Count)
-    wsChart.Name = "Over_All_Chart"
+    ' Execute the regular expression and get all matches
+    Set matches = regex.Execute(inputSentence)
     
-    ' Create a new sheet for slicers
-    Set wsSlicers = wbNew.Sheets.Add(After:=wsChart)
-    wsSlicers.Name = "Slicers"
+    ' Loop through the matches and extract the IDs
+    For Each match In matches
+        extractedIDs = extractedIDs & match.SubMatches(0) & vbCrLf ' Use vbCrLf to separate IDs on new lines
+    Next match
     
-    ' Copy the pivot table
-    Set pt = wsData.PivotTables("PivotTable10")
-    pt.TableRange2.Copy Destination:=wsData.Range("A204")
-    
-    ' Update pivot table data source
-    pt.ChangePivotCache wbNew.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=wsData.Range("A1:G199"))
-    
-    ' Save the new workbook
-    newFileName = "NewWorkbook.xlsx" ' Modify the filename as needed
-    wbNew.SaveAs newFileName
-    
-    ' Close the new workbook
-    wbNew.Close SaveChanges:=False
-    
-    ' Clean up objects
-    Set wbSource = Nothing
-    Set wbNew = Nothing
-    Set wsData = Nothing
-    Set wsChart = Nothing
-    Set wsSlicers = Nothing
-    Set pt = Nothing
-    
-    MsgBox "New Excel file created successfully!"
+    ' Display the extracted IDs
+    MsgBox "Extracted IDs:" & vbCrLf & extractedIDs
 End Sub
