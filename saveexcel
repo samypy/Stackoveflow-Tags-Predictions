@@ -33,3 +33,4 @@ Sub ExtractIDs()
     ' Display the extracted IDs
     MsgBox "Extracted IDs:" & vbCrLf & extractedIDs
 End Sub
+=IF(ISNUMBER(FIND("WDAY", A1)), MID(A1, FIND("WDAY", A1) + LEN("WDAY"), LEN(A1)), "")
