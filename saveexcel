@@ -34,4 +34,3 @@ Sub ExtractIDs()
     MsgBox "Extracted IDs:" & vbCrLf & extractedIDs
 End Sub
 =IF(ISNUMBER(FIND("WDAY", A1)), MID(A1, FIND("WDAY", A1) + LEN("WDAY"), LEN(A1)), "")
-Trusha's performance in the past few months has been commendable. She exhibits a remarkable ability to grasp knowledge swiftly, enabling the team to assign her more complex reports. Trusha demonstrates great dedication to her work and values the tasks entrusted to her. She handles daily, weekly, and monthly reports, as well as ad-hoc requests, with utmost professionalism. Notably, she consistently delivers all the assigned reports within the given timelines. Trusha would undoubtedly be an excellent point of contact for any CRM-related queries.
