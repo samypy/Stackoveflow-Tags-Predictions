@@ -1,2 +1,22 @@
+Aniket's dedication to minimizing manual efforts and driving automation has been commendable, leading to significant improvements in report preparation.
 
-Mayank's approach to building partnerships is exemplary, as demonstrated in his collaborative efforts across various areas. He actively collaborates with Chris and Emma on the Media Report, dedicating his efforts to identify data leakages and address arising issues. Additionally, Mayank maintains regular communication with the Tech team through regular calls, ensuring prompt highlighting of issues and effective planning for corrective actions. His proactive approach extends to partnering with other tech teams to automate data for Models consumption, resulting in enhanced efficiency and streamlined processes. Mayank's commitment to collaboration and communication reinforces his invaluable role in fostering effective teamwork and driving positive outcomes within the organization.
+1. Product Scores:
+Aniket created a feed that runs daily, retrieving Focus List data along with additions and deletions. This automation not only saves time but also ensures accuracy, streamlining the report preparation process.
+
+2. Research Connect Stats:
+Aniket tackled the challenge of making judgmental calls in bifurcating report buckets. To simplify this process, he developed a template that identifies errors in the file. After removing errors, running the macro generates the required summary data, which can be easily copied into the report file.
+
+3. Corporate Access Report:
+To enhance efficiency, Aniket created a macro that retrieves all reports with a single click. He further automated the manual task of generating the Global Stats report requested by stakeholders, streamlining the reporting process.
+
+4. Internal MIS Feed:
+Aniket implemented a daily feed that consolidates all data runs within a day. Previously, the team had to manually collate 30/31 days' data into a single file, a time-consuming task. To overcome this, Aniket added a macro to the feed that automatically collates data for a month and restarts the process for the next month, saving valuable time and effort.
+
+Aniket's proactive approach has significantly improved report preparation, but he is not stopping there. He aims to automate other critical reports by the end of the year, further enhancing efficiency and productivity within the team.
+
+Reviewer's Name:
+[Your Name]
+Position:
+[Your Position]
+Date:
+[Review Date]
