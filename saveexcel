@@ -1,1 +1,66 @@
-...
+Sub CopyWorkbookWithObjects()
+    Dim oldWorkbook As Workbook
+    Dim newWorkbook As Workbook
+    Dim oldSheet As Worksheet
+    Dim newSheet As Worksheet
+    Dim pt As PivotTable
+    Dim ch As ChartObject
+    Dim sl As SlicerCache
+    Dim wsName As String
+    Dim ptName As String
+    Dim chName As String
+    Dim slName As String
+    
+    ' Set the source workbook (workbook to copy from)
+    Set oldWorkbook = ThisWorkbook ' Change this to the workbook you want to copy from
+    
+    ' Create a new workbook
+    Set newWorkbook = Workbooks.Add
+    
+    ' Loop through all sheets in the old workbook
+    For Each oldSheet In oldWorkbook.Sheets
+        wsName = oldSheet.Name
+        oldSheet.Copy After:=newWorkbook.Sheets(newWorkbook.Sheets.Count)
+        Set newSheet = newWorkbook.Sheets(newWorkbook.Sheets.Count)
+        newSheet.Name = wsName
+    Next oldSheet
+    
+    ' Loop through all pivot tables in the old workbook
+    For Each pt In oldWorkbook.Sheets(1).PivotTables
+        ptName = pt.Name
+        pt.TableRange2.Copy
+        newWorkbook.Sheets(1).Range("A1").PasteSpecial xlPasteValues
+        Set pt = newWorkbook.Sheets(1).PivotTables.Add(PivotCache:=pt.PivotCache, TableDestination:=newWorkbook.Sheets(1).Range("A1"), TableName:=ptName)
+    Next pt
+    
+    ' Loop through all charts in the old workbook
+    For Each ch In oldWorkbook.Sheets(1).ChartObjects
+        chName = ch.Name
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFilePlatform = 437
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFileStartRow = 1
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFileParseType = xlDelimited
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFileTextQualifier = xlTextQualifierDoubleQuote
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFileConsecutiveDelimiter = False
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFileTabDelimiter = False
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFileSemicolonDelimiter = False
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFileCommaDelimiter = False
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFileSpaceDelimiter = True
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFileColumnDataTypes = Array(1, 1)
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFileDecimalSeparator = "."
+        ch.Chart.ChartData.WorkbookConnection.Workbook.TextConnection.TextFileThousandsSeparator = ","
+        ch.Copy
+        newWorkbook.Sheets(1).Paste
+        Set ch = newWorkbook.Sheets(1).ChartObjects(newWorkbook.Sheets(1).ChartObjects.Count)
+        ch.Name = chName
+    Next ch
+    
+    ' Loop through all slicers in the old workbook
+    For Each sl In oldWorkbook.SlicerCaches
+        slName = sl.Name
+        sl.Copy
+        Set sl = newWorkbook.SlicerCaches(newWorkbook.SlicerCaches.Count)
+        sl.Name = slName
+    Next sl
+    
+    Application.CutCopyMode = False
+End Sub
