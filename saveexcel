@@ -79,36 +79,28 @@ Sub UpdateChartSeriesData()
     Next ws
 End Sub
 
-Sub AddSlicerCachesToAllSheets()
+Sub LinkAllPivotTablesToAllSlicers()
     Dim wb As Workbook
-    Dim wsSource As Worksheet
-    Dim wsTarget As Worksheet
+    Dim ws As Worksheet
     Dim pt As PivotTable
-    Dim scSource As SlicerCache
-    Dim slicerSheetName As String
-    Dim newSlicerCache As SlicerCache
+    Dim sc As SlicerCache
 
     ' Set the workbook object
-    Set wb = ThisWorkbook ' Change this to the workbook containing the pivot tables
+    Set wb = ThisWorkbook ' Change this to the workbook containing the pivot tables and slicers
 
-    ' Set the source worksheet where slicers are present
-    Set wsSource = wb.Worksheets("SlicerSheetName") ' Replace "SlicerSheetName" with the actual name of the sheet where slicers are present
-
-    ' Loop through all pivot tables in the source worksheet
-    For Each pt In wsSource.PivotTables
-        Set scSource = pt.Slicers.Add(SlicerDestination:=wsSource, _
-                                      SourceData:=pt.TableRange1, _
-                                      Name:=pt.Name & " Slicer").SlicerCache
-
-        ' Loop through all available sheets in the workbook
-        For Each wsTarget In wb.Sheets
-            If wsTarget.Name <> wsSource.Name Then
-                ' Copy the slicer cache to the target sheet
-                Set newSlicerCache = wb.SlicerCaches.Create(scSource.SourceType, scSource.SourceData, scSource.Name & " Copy")
-                newSlicerCache.Copy
-                wsTarget.Activate
-                wb.SlicerCaches(wb.SlicerCaches.Count).Delete
-            End If
-        Next wsTarget
-    Next pt
+    ' Loop through all worksheets in the workbook
+    For Each ws In wb.Worksheets
+        ' Loop through all slicer caches in the worksheet
+        For Each sc In ws.SlicerCaches
+            ' Loop through all pivot tables in the workbook
+            For Each pt In wb.PivotTables
+                ' Check if the pivot table is available in the slicer cache
+                If Not sc.PivotTables.Contains(pt) Then
+                    ' Link the pivot table to the slicer cache
+                    sc.PivotTables.AddPivotTable pt
+                End If
+            Next pt
+        Next sc
+    Next ws
 End Sub
+
