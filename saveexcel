@@ -88,19 +88,17 @@ Sub LinkAllPivotTablesToAllSlicers()
     ' Set the workbook object
     Set wb = ThisWorkbook ' Change this to the workbook containing the pivot tables and slicers
 
-    ' Loop through all worksheets in the workbook
-    For Each ws In wb.Worksheets
-        ' Loop through all slicer caches in the worksheet
-        For Each sc In ws.SlicerCaches
-            ' Loop through all pivot tables in the workbook
-            For Each pt In wb.PivotTables
-                ' Check if the pivot table is available in the slicer cache
-                If Not sc.PivotTables.Contains(pt) Then
-                    ' Link the pivot table to the slicer cache
-                    sc.PivotTables.AddPivotTable pt
-                End If
-            Next pt
-        Next sc
-    Next ws
+    ' Loop through all slicer caches in the workbook
+    For Each sc In wb.SlicerCaches
+        ' Loop through all pivot tables in the workbook
+        For Each pt In wb.PivotTables
+            ' Check if the pivot table is available in the slicer cache
+            If Not sc.PivotTables.Contains(pt) Then
+                ' Link the pivot table to the slicer cache
+                sc.PivotTables.AddPivotTable pt
+            End If
+        Next pt
+    Next sc
 End Sub
+
 
