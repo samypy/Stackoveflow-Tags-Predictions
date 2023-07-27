@@ -80,36 +80,36 @@ Sub UpdateChartSeriesData()
 End Sub
 
 Sub AutoCheckSlicerConnections()
-    Dim ws As Worksheet
+    Dim wb As Workbook
     Dim sc As SlicerCache
     Dim si As SlicerItem
     Dim slicerName As String
     Dim slicerSource As String
     Dim foundConnection As Boolean
 
-    ' Loop through all worksheets in the workbook
-    For Each ws In ThisWorkbook.Worksheets
-        ' Loop through all slicer caches in the worksheet
-        For Each sc In ws.SlicerCaches
-            slicerName = sc.Name
-            slicerSource = sc.SourceName
+    ' Set the workbook object
+    Set wb = ThisWorkbook ' Change this to the workbook containing the slicers
+
+    ' Loop through all slicer caches in the workbook
+    For Each sc In wb.SlicerCaches
+        slicerName = sc.Name
+        slicerSource = sc.SourceName
+        foundConnection = False
+
+        ' Check if there is a connection for the slicer
+        On Error Resume Next
+        If sc.ListObject.QueryTable Is Nothing Then
             foundConnection = False
+        Else
+            foundConnection = True
+        End If
+        On Error GoTo 0
 
-            ' Check if there is a connection for the slicer
-            On Error Resume Next
-            If sc.ListObject.QueryTable Is Nothing Then
-                foundConnection = False
-            Else
-                foundConnection = True
-            End If
-            On Error GoTo 0
-
-            ' If a connection is found, auto check the "Available" option
-            If foundConnection Then
-                For Each si In sc.SlicerItems
-                    si.Selected = True
-                Next si
-            End If
-        Next sc
-    Next ws
+        ' If a connection is found, auto check the "Available" option
+        If foundConnection Then
+            For Each si In sc.SlicerItems
+                si.Selected = True
+            Next si
+        End If
+    Next sc
 End Sub
