@@ -10,6 +10,7 @@ Sub CopyWorkbookWithObjects()
     Dim ptName As String
     Dim chName As String
     Dim slName As String
+    Dim chSeries As Series
 
     ' Set the source workbook (workbook to copy from)
     Set oldWorkbook = ThisWorkbook ' Change this to the workbook you want to copy from
@@ -36,12 +37,15 @@ Sub CopyWorkbookWithObjects()
     ' Loop through all charts in the old workbook
     For Each ch In oldWorkbook.Sheets(1).ChartObjects
         chName = ch.Name
-        ch.Chart.ChartData.Activate
-        ActiveSheet.ChartObjects(1).Activate
-        ActiveChart.ChartArea.Copy
+        ch.Copy
         newWorkbook.Sheets(1).Paste
         Set ch = newWorkbook.Sheets(1).ChartObjects(newWorkbook.Sheets(1).ChartObjects.Count)
         ch.Name = chName
+        
+        ' Update the chart series data ranges
+        For Each chSeries In ch.Chart.SeriesCollection
+            chSeries.Formula = Replace(chSeries.Formula, oldWorkbook.Sheets(1).Name, newWorkbook.Sheets(1).Name)
+        Next chSeries
     Next ch
 
     ' Loop through all slicers in the old workbook
