@@ -84,11 +84,15 @@ Sub CheckSlicerConnections()
     Dim sc As SlicerCache
     Dim si As SlicerItem
     Dim reportConnection As PivotTable
+    Dim hasSlicers As Boolean
     
+    On Error Resume Next
     ' Loop through each worksheet in the workbook
     For Each ws In ThisWorkbook.Worksheets
+        hasSlicers = False ' Flag to check if the worksheet has slicers
         ' Loop through each slicer cache in the worksheet
         For Each sc In ws.SlicerCaches
+            hasSlicers = True
             ' Loop through each slicer item in the slicer cache
             For Each si In sc.SlicerItems
                 ' Click on the slicer item to select it
@@ -112,7 +116,14 @@ Sub CheckSlicerConnections()
                 si.Selected = False
             Next si
         Next sc
+        
+        ' Display a message if the worksheet has no slicers
+        If Not hasSlicers Then
+            MsgBox "Worksheet: " & ws.Name & vbNewLine & "No Slicers Found"
+        End If
     Next ws
+    On Error GoTo 0
 End Sub
+
 
 
