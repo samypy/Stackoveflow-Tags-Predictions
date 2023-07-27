@@ -84,7 +84,7 @@ Sub AddSlicerCachesToAllSheets()
     Dim wsSource As Worksheet
     Dim wsTarget As Worksheet
     Dim pt As PivotTable
-    Dim sc As SlicerCache
+    Dim scSource As SlicerCache
     Dim slicerSheetName As String
     Dim newSlicerCache As SlicerCache
 
@@ -96,16 +96,15 @@ Sub AddSlicerCachesToAllSheets()
 
     ' Loop through all pivot tables in the source worksheet
     For Each pt In wsSource.PivotTables
-        Set sc = pt.Slicers.Add(SlicerDestination:=wsSource, _
-                                SourceType:=xlDatabase, _
-                                SourceData:=pt.TableRange1, _
-                                Name:=pt.Name & " Slicer")
+        Set scSource = pt.Slicers.Add(SlicerDestination:=wsSource, _
+                                      SourceData:=pt.TableRange1, _
+                                      Name:=pt.Name & " Slicer").SlicerCache
 
         ' Loop through all available sheets in the workbook
         For Each wsTarget In wb.Sheets
             If wsTarget.Name <> wsSource.Name Then
                 ' Copy the slicer cache to the target sheet
-                Set newSlicerCache = sc.Parent.SlicerCaches.Add(sc.SourceType, sc.SourceData, sc.Name & " Copy")
+                Set newSlicerCache = wb.SlicerCaches.Create(scSource.SourceType, scSource.SourceData, scSource.Name & " Copy")
                 newSlicerCache.Copy
                 wsTarget.Activate
                 wb.SlicerCaches(wb.SlicerCaches.Count).Delete
