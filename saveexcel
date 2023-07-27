@@ -90,31 +90,33 @@ Sub CheckSlicerConnections()
     ' Loop through each worksheet in the workbook
     For Each ws In ThisWorkbook.Worksheets
         hasSlicers = False ' Flag to check if the worksheet has slicers
-        ' Loop through each slicer cache in the worksheet
-        For Each sc In ws.SlicerCaches
-            hasSlicers = True
-            ' Loop through each slicer item in the slicer cache
-            For Each si In sc.SlicerItems
-                ' Click on the slicer item to select it
-                si.Selected = True
-                ' Delay to allow for the slicer animation (optional)
-                Application.Wait Now + TimeValue("00:00:01")
-                
-                ' Check if there's an associated PivotTable (Report Connection)
-                If Not sc.PivotTables.Count = 0 Then
-                    ' Get the PivotTable associated with the slicer cache
-                    Set reportConnection = sc.PivotTables(1)
-                    ' Display the name of the PivotTable associated with the slicer
-                    MsgBox "Slicer: " & si.Name & vbNewLine & _
-                           "Report Connection: " & reportConnection.Name
-                Else
-                    ' If there's no associated PivotTable, display a message
-                    MsgBox "Slicer: " & si.Name & vbNewLine & "No Report Connection"
-                End If
-                
-                ' Clear the slicer selection to prepare for the next iteration
-                si.Selected = False
-            Next si
+        ' Loop through each slicer cache in the workbook
+        For Each sc In ThisWorkbook.SlicerCaches
+            If sc.Parent.Name = ws.Name Then
+                hasSlicers = True
+                ' Loop through each slicer item in the slicer cache
+                For Each si In sc.SlicerItems
+                    ' Click on the slicer item to select it
+                    si.Selected = True
+                    ' Delay to allow for the slicer animation (optional)
+                    Application.Wait Now + TimeValue("00:00:01")
+                    
+                    ' Check if there's an associated PivotTable (Report Connection)
+                    If Not sc.PivotTables.Count = 0 Then
+                        ' Get the PivotTable associated with the slicer cache
+                        Set reportConnection = sc.PivotTables(1)
+                        ' Display the name of the PivotTable associated with the slicer
+                        MsgBox "Slicer: " & si.Name & vbNewLine & _
+                               "Report Connection: " & reportConnection.Name
+                    Else
+                        ' If there's no associated PivotTable, display a message
+                        MsgBox "Slicer: " & si.Name & vbNewLine & "No Report Connection"
+                    End If
+                    
+                    ' Clear the slicer selection to prepare for the next iteration
+                    si.Selected = False
+                Next si
+            End If
         Next sc
         
         ' Display a message if the worksheet has no slicers
@@ -124,6 +126,3 @@ Sub CheckSlicerConnections()
     Next ws
     On Error GoTo 0
 End Sub
-
-
-
