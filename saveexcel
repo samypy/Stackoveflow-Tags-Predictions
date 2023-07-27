@@ -79,26 +79,40 @@ Sub UpdateChartSeriesData()
     Next ws
 End Sub
 
-Sub LinkAllPivotTablesToAllSlicers()
-    Dim wb As Workbook
+Sub CheckSlicerConnections()
     Dim ws As Worksheet
-    Dim pt As PivotTable
     Dim sc As SlicerCache
-
-    ' Set the workbook object
-    Set wb = ThisWorkbook ' Change this to the workbook containing the pivot tables and slicers
-
-    ' Loop through all slicer caches in the workbook
-    For Each sc In wb.SlicerCaches
-        ' Loop through all pivot tables in the workbook
-        For Each pt In wb.PivotTables
-            ' Check if the pivot table is available in the slicer cache
-            If Not sc.PivotTables.Contains(pt) Then
-                ' Link the pivot table to the slicer cache
-                sc.PivotTables.AddPivotTable pt
-            End If
-        Next pt
-    Next sc
+    Dim si As SlicerItem
+    Dim reportConnection As PivotTable
+    
+    ' Loop through each worksheet in the workbook
+    For Each ws In ThisWorkbook.Worksheets
+        ' Loop through each slicer cache in the worksheet
+        For Each sc In ws.SlicerCaches
+            ' Loop through each slicer item in the slicer cache
+            For Each si In sc.SlicerItems
+                ' Click on the slicer item to select it
+                si.Selected = True
+                ' Delay to allow for the slicer animation (optional)
+                Application.Wait Now + TimeValue("00:00:01")
+                
+                ' Check if there's an associated PivotTable (Report Connection)
+                If Not sc.PivotTables.Count = 0 Then
+                    ' Get the PivotTable associated with the slicer cache
+                    Set reportConnection = sc.PivotTables(1)
+                    ' Display the name of the PivotTable associated with the slicer
+                    MsgBox "Slicer: " & si.Name & vbNewLine & _
+                           "Report Connection: " & reportConnection.Name
+                Else
+                    ' If there's no associated PivotTable, display a message
+                    MsgBox "Slicer: " & si.Name & vbNewLine & "No Report Connection"
+                End If
+                
+                ' Clear the slicer selection to prepare for the next iteration
+                si.Selected = False
+            Next si
+        Next sc
+    Next ws
 End Sub
 
 
