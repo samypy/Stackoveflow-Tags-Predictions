@@ -36,19 +36,9 @@ Sub CopyWorkbookWithObjects()
     ' Loop through all charts in the old workbook
     For Each ch In oldWorkbook.Sheets(1).ChartObjects
         chName = ch.Name
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFilePlatform = 437
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFileStartRow = 1
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFileParseType = xlDelimited
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFileTextQualifier = xlTextQualifierDoubleQuote
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFileConsecutiveDelimiter = False
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFileTabDelimiter = False
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFileSemicolonDelimiter = False
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFileCommaDelimiter = False
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFileSpaceDelimiter = True
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFileColumnDataTypes = Array(1, 1)
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFileDecimalSeparator = "."
-        ch.Chart.ChartData.WorkbookConnection.Workbook.TextFileThousandsSeparator = ","
-        ch.Copy
+        ch.Chart.ChartData.Activate
+        ActiveSheet.ChartObjects(1).Activate
+        ActiveChart.ChartArea.Copy
         newWorkbook.Sheets(1).Paste
         Set ch = newWorkbook.Sheets(1).ChartObjects(newWorkbook.Sheets(1).ChartObjects.Count)
         ch.Name = chName
