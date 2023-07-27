@@ -58,3 +58,24 @@ Sub CopyWorkbookWithObjects()
 
     Application.CutCopyMode = False
 End Sub
+
+Sub UpdateChartSeriesData()
+    Dim ws As Worksheet
+    Dim co As ChartObject
+    Dim ch As Chart
+    Dim series As Series
+
+    ' Loop through all worksheets in the current workbook
+    For Each ws In ThisWorkbook.Worksheets
+        ' Loop through all chart objects in the worksheet
+        For Each co In ws.ChartObjects
+            Set ch = co.Chart
+            ' Loop through all series in the chart
+            For Each series In ch.SeriesCollection
+                ' Update the series formula to refer to the current workbook
+                series.Formula = Replace(series.Formula, ws.Parent.Name, ThisWorkbook.Name)
+            Next series
+        Next co
+    Next ws
+End Sub
+
