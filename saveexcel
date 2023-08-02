@@ -29,4 +29,48 @@ Sub GetWebsiteResponse()
     ' Clean up
     Set objHTTP = Nothing
 End Sub
-yes
+Sub GetSearchResultsUsingPOST()
+    Dim URL As String
+    Dim objHTTP As Object
+    Dim htmlDoc As Object
+    Dim searchResults As Object
+    Dim result As Object
+    Dim postData As String
+    
+    ' Set the URL of the website
+    URL = "https://www.example.com/search"
+    
+    ' Set the payload data for POST request
+    postData = "txtID=1234&btnRITSSearch=search"
+
+    ' Create an XMLHTTP object
+    Set objHTTP = CreateObject("MSXML2.XMLHTTP")
+    
+    ' Send the POST request
+    objHTTP.Open "POST", URL, False
+    objHTTP.setRequestHeader "Content-Type", "application/x-www-form-urlencoded"
+    objHTTP.send postData
+    
+    ' Check if the request was successful
+    If objHTTP.Status = 200 Then
+        ' Create an HTMLDocument object to parse the response
+        Set htmlDoc = CreateObject("htmlfile")
+        htmlDoc.body.innerHTML = objHTTP.responseText
+        
+        ' Get all elements with class "pnlSearchResult"
+        Set searchResults = htmlDoc.getElementsByClassName("pnlSearchResult")
+        
+        ' Loop through each element and extract the values
+        For Each result In searchResults
+            Debug.Print result.innerText
+        Next result
+    Else
+        ' Display an error message if the request failed
+        Debug.Print "Error: " & objHTTP.Status & " - " & objHTTP.statusText
+    End If
+
+    ' Clean up
+    Set objHTTP = Nothing
+    Set htmlDoc = Nothing
+End Sub
+
