@@ -29,3 +29,4 @@ Sub GetWebsiteResponse()
     ' Clean up
     Set objHTTP = Nothing
 End Sub
+yes
