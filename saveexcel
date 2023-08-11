@@ -34,3 +34,5 @@ else:
     consolidated_file_path = os.path.join(root_folder, "Consolidated_Data.xlsx")
     consolidated_data.to_excel(consolidated_file_path, index=False)
     print(f"Consolidated data saved to {consolidated_file_path}")
+month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+month_folder = os.path.join(root_folder, f"2022/{month:02d}.{month_names[month-1]}")
