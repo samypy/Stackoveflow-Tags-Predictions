@@ -1,76 +1,36 @@
-Sub GetWebsiteResponse()
-    Dim URL As String
-    Dim Data As String
-    Dim objHTTP As Object
+import os
+import pandas as pd
 
-    ' Set the URL of the website
-    URL = "https://www.example.com/search"
+# Set the root folder path
+root_folder = "path_to_root_folder"  # Replace with the actual path to your root folder
 
-    ' Set the payload data
-    Data = "txtID=1234&btnRITSSearch=search"
+# Initialize an empty DataFrame to store consolidated data
+consolidated_data = pd.DataFrame()
 
-    ' Create an XMLHTTP object
-    Set objHTTP = CreateObject("MSXML2.XMLHTTP")
+# Loop through each month's folder
+for month in range(1, 13):
+    month_folder = os.path.join(root_folder, f"2022/{month:02d}.{"Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec".split(',')[month-1]}")
 
-    ' Send the POST request
-    objHTTP.Open "POST", URL, False
-    objHTTP.setRequestHeader "Content-Type", "application/x-www-form-urlencoded"
-    objHTTP.send Data
+    # Loop through subfolders and find Excel files
+    for subdir, _, files in os.walk(month_folder):
+        for file in files:
+            if file == "Weekly_RC_LC_Clearance_Report.xls":
+                file_path = os.path.join(subdir, file)
 
-    ' Check if the request was successful
-    If objHTTP.Status = 200 Then
-        ' Print the response text
-        Debug.Print objHTTP.responseText
-    Else
-        ' Display an error message if the request failed
-        Debug.Print "Error: " & objHTTP.Status & " - " & objHTTP.statusText
-    End If
+                try:
+                    # Read the "Base Data" sheet
+                    excel_data = pd.read_excel(file_path, sheet_name="Base Data")
 
-    ' Clean up
-    Set objHTTP = Nothing
-End Sub
-Sub GetSearchResultsUsingPOST()
-    Dim URL As String
-    Dim objHTTP As Object
-    Dim htmlDoc As Object
-    Dim searchResults As Object
-    Dim result As Object
-    Dim postData As String
-    
-    ' Set the URL of the website
-    URL = "https://www.example.com/search"
-    
-    ' Set the payload data for POST request
-    postData = "txtID=1234&btnRITSSearch=search"
+                    # Append the data to the consolidated DataFrame
+                    consolidated_data = consolidated_data.append(excel_data, ignore_index=True)
+                except Exception as e:
+                    print(f"Error reading {file_path}: {e}")
 
-    ' Create an XMLHTTP object
-    Set objHTTP = CreateObject("MSXML2.XMLHTTP")
-    
-    ' Send the POST request
-    objHTTP.Open "POST", URL, False
-    objHTTP.setRequestHeader "Content-Type", "application/x-www-form-urlencoded"
-    objHTTP.send postData
-    
-    ' Check if the request was successful
-    If objHTTP.Status = 200 Then
-        ' Create an HTMLDocument object to parse the response
-        Set htmlDoc = CreateObject("htmlfile")
-        htmlDoc.body.innerHTML = objHTTP.responseText
-        
-        ' Get all elements with class "pnlSearchResult"
-        Set searchResults = htmlDoc.getElementsByClassName("pnlSearchResult")
-        
-        ' Loop through each element and extract the values
-        For Each result In searchResults
-            Debug.Print result.innerText
-        Next result
-    Else
-        ' Display an error message if the request failed
-        Debug.Print "Error: " & objHTTP.Status & " - " & objHTTP.statusText
-    End If
-
-    ' Clean up
-    Set objHTTP = Nothing
-    Set htmlDoc = Nothing
-End Sub
-
+# Check if any data was consolidated
+if consolidated_data.empty:
+    print("No data was consolidated.")
+else:
+    # Write the consolidated data to a new Excel file
+    consolidated_file_path = os.path.join(root_folder, "Consolidated_Data.xlsx")
+    consolidated_data.to_excel(consolidated_file_path, index=False)
+    print(f"Consolidated data saved to {consolidated_file_path}")
