@@ -1,43 +1,25 @@
-import os
-import pandas as pd
+Sub GetLastRowOfFilteredTable()
+    Dim ws As Worksheet
+    Dim tbl As ListObject
+    Dim lastRow As Long
 
-# Set the root folder path
-root_folder = "path_to_root_folder"  # Replace with the actual path to your root folder
+    ' Set the worksheet containing your table
+    Set ws = ThisWorkbook.Worksheets("Sheet1") ' Replace "Sheet1" with your sheet name
 
-# Initialize an empty DataFrame to store consolidated data
-consolidated_data = pd.DataFrame()
+    ' Set the table
+    Set tbl = ws.ListObjects("Table1") ' Replace "Table1" with your table name
 
-# Loop through each month's folder
-for month in range(1, 13):
-    month_folder = os.path.join(root_folder, f"2022/{month:02d}.{"Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec".split(',')[month-1]}")
+    ' Check if a filter is applied
+    If tbl.AutoFilter.FilterMode Then
+        ' Find the last visible row in the filtered table
+        On Error Resume Next
+        lastRow = tbl.ListRows(tbl.ListRows.Count).Range.Row
+        On Error GoTo 0
+    Else
+        ' If no filter is applied, get the last row in the table
+        lastRow = tbl.ListRows.Count
+    End If
 
-    # Loop through subfolders and find Excel files
-    for subdir, _, files in os.walk(month_folder):
-        for file in files:
-            if file == "Weekly_RC_LC_Clearance_Report.xls":
-                file_path = os.path.join(subdir, file)
-
-                try:
-                    # Read the "Base Data" sheet
-                    excel_data = pd.read_excel(file_path, sheet_name="Base Data")
-
-                    # Append the data to the consolidated DataFrame
-                    consolidated_data = consolidated_data.append(excel_data, ignore_index=True)
-                except Exception as e:
-                    print(f"Error reading {file_path}: {e}")
-
-# Check if any data was consolidated
-if consolidated_data.empty:
-    print("No data was consolidated.")
-else:
-    # Write the consolidated data to a new Excel file
-    consolidated_file_path = os.path.join(root_folder, "Consolidated_Data.xlsx")
-    consolidated_data.to_excel(consolidated_file_path, index=False)
-    print(f"Consolidated data saved to {consolidated_file_path}")
-month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-month_folder = os.path.join(root_folder, f"2022/{month:02d}.{month_names[month-1]}")
-
-MIG Teams and Roles
-
-Default (GPT-3.5)
-
+    ' Display the last row number
+    MsgBox "Last Row Number: " & lastRow
+End Sub
