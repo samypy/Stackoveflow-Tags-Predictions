@@ -14,6 +14,7 @@ Sub GetLastRowOfFilteredTable()
         ' Find the last visible row in the filtered table
         On Error Resume Next
         lastRow = tbl.ListRows(tbl.ListRows.Count).Range.Row
+lastRow = tbl.ListRows(tbl.ListRows.Count).Range.SpecialCells(xlCellTypeVisible).Row
         On Error GoTo 0
     Else
         ' If no filter is applied, get the last row in the table
