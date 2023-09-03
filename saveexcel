@@ -69,3 +69,5 @@ End Sub
 
 Dim percentage As Double
 percentage = Val(Mid(strArray(i), InStr(strArray(i), "(") + 1, Len(strArray(i)) - InStr(strArray(i), "(") - 2))
+
+PasteSpecial Paste:=xlPasteValues
