@@ -24,3 +24,9 @@ Sub GetLastRowOfFilteredTable()
     MsgBox "Last Row Number: " & lastRow
 End Sub
 lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+ ' Set the range to the desired column (e.g., column "A")
+    Set rng = ws.Range("A:A")
+    
+    ' Find the last visible row with data starting from the bottom
+    On Error Resume Next
+    lastRow = rng.SpecialCells(xlCellTypeVisible).Row
