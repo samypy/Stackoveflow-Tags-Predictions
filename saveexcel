@@ -31,3 +31,13 @@ lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
     ' Find the last visible row with data starting from the bottom
     On Error Resume Next
     lastRow = rng.SpecialCells(xlCellTypeVisible).Row
+ ' Initialize lastRow to 0
+    lastRow = 0
+    
+    ' Loop through the table's rows to find the last visible row
+    For Each row In tbl.ListRows
+        If Not row.Range.EntireRow.Hidden Then
+            ' If the row is not hidden, update lastRow
+            lastRow = row.Index
+        End If
+    Next row
