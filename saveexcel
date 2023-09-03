@@ -41,3 +41,30 @@ lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
             lastRow = row.Index
         End If
     Next row
+
+Sub ExtractNumbersInParentheses()
+    Dim inputString As String
+    Dim strArray() As String
+    Dim i As Integer
+    
+    ' Input string containing the numbers in parentheses
+    inputString = "3(90),5(60),2(45),7(20)"
+    
+    ' Split the input string into an array using comma as the delimiter
+    strArray = Split(inputString, ",")
+    
+    ' Loop through the elements in the array
+    For i = LBound(strArray) To UBound(strArray)
+        ' Extract the number before the opening parenthesis
+        Dim number As Integer
+        number = Val(Left(strArray(i), InStr(strArray(i), "(") - 1))
+        
+        ' Perform some action based on the extracted number
+        MsgBox "Number: " & number
+        
+        ' You can replace the MsgBox with any desired action here
+        
+    Next i
+End Sub
+
+
