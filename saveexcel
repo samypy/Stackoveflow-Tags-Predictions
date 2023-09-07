@@ -73,3 +73,4 @@ Dim percentage As Double
 percentage = Val(Mid(strArray(i), InStr(strArray(i), "(") + 1, Len(strArray(i)) - InStr(strArray(i), "(") - 2))
 
 PasteSpecial Paste:=xlPasteValues
+Hello Vivian, after an internal discussion, we've grasped the requirements. Akshat is currently working on July data and should have it ready for our discussion by August 13th. I'll schedule some time on our calendar for us to review it.
