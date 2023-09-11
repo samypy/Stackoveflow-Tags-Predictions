@@ -73,8 +73,3 @@ Dim percentage As Double
 percentage = Val(Mid(strArray(i), InStr(strArray(i), "(") + 1, Len(strArray(i)) - InStr(strArray(i), "(") - 2))
 
 PasteSpecial Paste:=xlPasteValues
-Hello Vivian, after an internal discussion, we've grasped the requirements. Akshat is currently working on July data and should have it ready for our discussion by August 13th. I'll schedule some time on our calendar for us to review it.
-
-Despite the commendable effort you invested in preparing the report, it has come to my attention that we failed to ensure the proper delivery of the report to the stakeholders. This oversight is deeply disappointing and cannot be taken lightly. It reflects poorly on our team's professionalism and diligence, and it may have adverse consequences for our reputation and relationships with the stakeholders.
-
-It is imperative that we act swiftly and decisively to rectify this situation and prevent similar lapses in the future. I request that both of you thoroughly investigate the root causes of this oversight and provide a detailed explanation of what went wrong. Additionally, please present a comprehensive plan to ensure that such incidents do not occur again.
