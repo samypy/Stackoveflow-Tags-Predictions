@@ -73,3 +73,37 @@ Dim percentage As Double
 percentage = Val(Mid(strArray(i), InStr(strArray(i), "(") + 1, Len(strArray(i)) - InStr(strArray(i), "(") - 2))
 
 PasteSpecial Paste:=xlPasteValues
+import os
+import pandas as pd
+
+# Define the root path where you want to start searching
+root_path = '/your/root/folder'
+
+# Create an empty list to store dataframes
+dataframes = []
+
+# Walk through all folders and subfolders
+for root, dirs, files in os.walk(root_path):
+    # Check if 'Docs to Upload' folder exists
+    if 'Docs to Upload' in dirs:
+        docs_path = os.path.join(root, 'Docs to Upload')
+        
+        # Iterate through subfolders of 'Docs to Upload'
+        for subfolder in os.listdir(docs_path):
+            subfolder_path = os.path.join(docs_path, subfolder)
+            
+            # Check if an Excel file with the start name 'Voteattachments' exists
+            for file in os.listdir(subfolder_path):
+                if file.startswith('Voteattachments') and file.endswith('.xlsx'):
+                    excel_file_path = os.path.join(subfolder_path, file)
+                    
+                    # Read Excel file into a dataframe
+                    df = pd.read_excel(excel_file_path)
+                    dataframes.append(df)
+
+# Combine all dataframes into one
+if dataframes:
+    final_df = pd.concat(dataframes, ignore_index=True)
+    print(final_df)
+else:
+    print("No matching Excel files found.")
