@@ -145,7 +145,4 @@ if dataframes:
     final_df = pd.concat(dataframes, ignore_index=True)
     print(final_df)
 else:
-    print("No matching Excel files found.")
-I'm sorry for the delay. I've attached the requested file for you. However, I want to inform you that we're in discussions with our management regarding the possibility of providing contact-level readership data in the future.
-
-Our agreements with clients restrict access to readership data. While we can offer account-level readership data, we're currently seeking clarification on whether we can provide access at the contact level. Rest assured, I'll keep you updated as soon as we have more clarity on this matter.
+    print("No 
