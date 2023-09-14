@@ -140,10 +140,4 @@ def search_for_excel_files(path, level=1):
 # Start the search from the root path
 search_for_excel_files(root_path)
 
-# Combine all dataframes into one
-if dataframes:
-    final_df = pd.concat(dataframes, ignore_index=True)
-    print(final_df)
-else:
-    print("No 
-The feed is prepared, but it's not feasible for us to grant access to all research staff and manage it daily. We can send the feed to your team or other designated individuals, and they can distribute it as needed
+# Combine all dataframes into d
