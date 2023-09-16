@@ -1,143 +1,48 @@
-Sub GetLastRowOfFilteredTable()
-    Dim ws As Worksheet
-    Dim tbl As ListObject
-    Dim lastRow As Long
-
-    ' Set the worksheet containing your table
-    Set ws = ThisWorkbook.Worksheets("Sheet1") ' Replace "Sheet1" with your sheet name
-
-    ' Set the table
-    Set tbl = ws.ListObjects("Table1") ' Replace "Table1" with your table name
-
-    ' Check if a filter is applied
-    If tbl.AutoFilter.FilterMode Then
-        ' Find the last visible row in the filtered table
-        On Error Resume Next
-        lastRow = tbl.ListRows(tbl.ListRows.Count).Range.Row
-lastRow = tbl.ListRows(tbl.ListRows.Count).Range.SpecialCells(xlCellTypeVisible).Row
-        On Error GoTo 0
-    Else
-        ' If no filter is applied, get the last row in the table
-        lastRow = tbl.ListRows.Count
-    End If
-
-    ' Display the last row number
-    MsgBox "Last Row Number: " & lastRow
-End Sub
-lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
- ' Set the range to the desired column (e.g., column "A")
-    Set rng = ws.Range("A:A")
-    
-    ' Find the last visible row with data starting from the bottom
-    On Error Resume Next
-    lastRow = rng.SpecialCells(xlCellTypeVisible).Row
- ' Initialize lastRow to 0
-    lastRow = 0
-    
-    ' Loop through the table's rows to find the last visible row
-    For Each row In tbl.ListRows
-        If Not row.Range.EntireRow.Hidden Then
-            ' If the row is not hidden, update lastRow
-            lastRow = row.Index
-        End If
-    Next row
-
-Sub ExtractNumbersInParentheses()
-    Dim inputString As String
-    Dim strArray() As String
+Sub ListFilesInFolder()
+    Dim folderPath As String
+    Dim fileName As String
+    Dim folderName As String
+    Dim objFSO As Object
+    Dim objFolder As Object
+    Dim objFile As Object
     Dim i As Integer
     
-    ' Input string containing the numbers in parentheses
-    inputString = "3(90),5(60),2(45),7(20)"
+    ' Define the folder path to search
+    folderPath = "C:\Your\Path\To\Search"
     
-    ' Split the input string into an array using comma as the delimiter
-    strArray = Split(inputString, ",")
+    ' Initialize the FileSystemObject
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
     
-    ' Loop through the elements in the array
-    For i = LBound(strArray) To UBound(strArray)
-        ' Extract the number before the opening parenthesis
-        Dim number As Integer
-        number = Val(Left(strArray(i), InStr(strArray(i), "(") - 1))
+    ' Check if the specified folder exists
+    If objFSO.FolderExists(folderPath) Then
+        ' Get the folder name starting with "00552"
+        folderName = Dir(folderPath & "\00552*", vbDirectory)
         
-        ' Perform some action based on the extracted number
-        MsgBox "Number: " & number
-
-
-
-        ' You can replace the MsgBox with any desired action here
-        
-    Next i
+        ' Loop through matching folders (there might be multiple)
+        Do While folderName <> ""
+            ' Get the folder's full path
+            folderPath = objFSO.BuildPath(folderPath, folderName)
+            
+            ' Set objFolder to the matching folder
+            Set objFolder = objFSO.GetFolder(folderPath)
+            
+            ' List all files in the folder
+            i = 1
+            For Each objFile In objFolder.Files
+                ' Output file names to the immediate window
+                Debug.Print "File " & i & ": " & objFile.Name
+                i = i + 1
+            Next objFile
+            
+            ' Get the next matching folder, if any
+            folderName = Dir
+        Loop
+    Else
+        MsgBox "Folder not found: " & folderPath, vbExclamation
+    End If
+    
+    ' Release the objects
+    Set objFSO = Nothing
+    Set objFolder = Nothing
+    Set objFile = Nothing
 End Sub
-
-Dim percentage As Double
-percentage = Val(Mid(strArray(i), InStr(strArray(i), "(") + 1, Len(strArray(i)) - InStr(strArray(i), "(") - 2))
-
-PasteSpecial Paste:=xlPasteValues
-import os
-import pandas as pd
-
-# Define the root path where you want to start searching
-root_path = '/your/root/folder'
-
-# Create an empty list to store dataframes
-dataframes = []
-
-# Walk through all folders and subfolders
-for root, dirs, files in os.walk(root_path):
-    # Check if 'Docs to Upload' folder exists
-    if 'Docs to Upload' in dirs:
-        docs_path = os.path.join(root, 'Docs to Upload')
-        
-        # Iterate through subfolders of 'Docs to Upload'
-        for subfolder in os.listdir(docs_path):
-            subfolder_path = os.path.join(docs_path, subfolder)
-            
-            # Check if an Excel file with the start name 'Voteattachments' exists
-            for file in os.listdir(subfolder_path):
-                if file.startswith('Voteattachments') and file.endswith('.xlsx'):
-                    excel_file_path = os.path.join(subfolder_path, file)
-                    
-                    # Read Excel file into a dataframe
-                    df = pd.read_excel(excel_file_path)
-                    dataframes.append(df)
-
-# Combine all dataframes into one
-if dataframes:
-    final_df = pd.concat(dataframes, ignore_index=True)
-    print(final_df)
-else:
-    print("No matching Excel files found.")
-import os
-import pandas as pd
-
-# Define the root path where you want to start searching
-root_path = '/your/root/folder'
-
-# Create an empty list to store dataframes
-dataframes = []
-
-# Function to search for Excel files within 'Docs to Upload' folders at the 3rd level
-def search_for_excel_files(path, level=1):
-    for root, dirs, files in os.walk(path):
-        # Check if we are at the 3rd level (level=3)
-        if level == 3 and 'Docs to Upload' in dirs:
-            docs_path = os.path.join(root, 'Docs to Upload')
-            
-            # Check if an Excel file with the start name 'Voteattachments' exists
-            for file in os.listdir(docs_path):
-                if file.startswith('Voteattachments') and file.endswith('.xlsx'):
-                    excel_file_path = os.path.join(docs_path, file)
-                    
-                    # Read Excel file into a dataframe
-                    df = pd.read_excel(excel_file_path)
-                    dataframes.append(df)
-        
-        # Recursively search for 'Docs to Upload' at the next level
-        for d in dirs:
-            next_path = os.path.join(root, d)
-            search_for_excel_files(next_path, level + 1)
-
-# Start the search from the root path
-search_for_excel_files(root_path)
-
-# Combine all dataframes into d
