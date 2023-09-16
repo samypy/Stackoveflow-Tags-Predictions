@@ -196,3 +196,9 @@ Sub RemoveFiltersFromAllSheets()
         End If
     Next ws
 End Sub
+    ' Loop through all ListObjects (tables) on the worksheet
+    For Each tbl In ws.ListObjects
+        If tbl.ShowAutoFilter Then
+            tbl.AutoFilter.ShowAllData
+        End If
+    Next tbl
