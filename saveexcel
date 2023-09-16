@@ -184,3 +184,15 @@ End Sub
         olItem.Application.ActiveDocument.Content.Paste
 Dim olNs As Object
     Dim olItem As Object
+Sub RemoveFiltersFromAllSheets()
+    Dim ws As Worksheet
+    
+    ' Loop through all worksheets in the workbook
+    For Each ws In ThisWorkbook.Worksheets
+        ' Check if the worksheet has AutoFilter turned on
+        If ws.AutoFilterMode Then
+            ' Remove the filter
+            ws.AutoFilterMode = False
+        End If
+    Next ws
+End Sub
