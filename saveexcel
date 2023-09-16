@@ -49,3 +49,40 @@ Sub ListFilesInSubfolder()
     Set objDocToUploadFolder = Nothing
     Set objFile = Nothing
 End Sub
+
+
+Sub FindFolderInSubfolders()
+    Dim mainFolderPath As String
+    Dim objFSO As Object
+    Dim objMainFolder As Object
+    Dim objSubfolder As Object
+    
+    ' Define the main folder path (e.g., "Documents") to search
+    mainFolderPath = "C:\Your\Main\Folder\Path\Documents"
+    
+    ' Initialize the FileSystemObject
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    
+    ' Check if the specified main folder exists
+    If objFSO.FolderExists(mainFolderPath) Then
+        ' Loop through all subfolders within the main folder (Folder1, Folder2, etc.)
+        For Each objMainFolder In objFSO.GetFolder(mainFolderPath).Subfolders
+            ' Loop through subfolders within each of the 10 folders
+            For Each objSubfolder In objMainFolder.Subfolders
+                ' Check if the subfolder name starts with "00521"
+                If Left(objSubfolder.Name, 5) = "00521" Then
+                    MsgBox "Found folder: " & objSubfolder.Path
+                    ' If you want to stop searching after finding the first match, you can exit the loop here.
+                    ' Exit For
+                End If
+            Next objSubfolder
+        Next objMainFolder
+    Else
+        MsgBox "Main folder not found: " & mainFolderPath, vbExclamation
+    End If
+    
+    ' Release the objects
+    Set objFSO = Nothing
+    Set objMainFolder = Nothing
+    Set objSubfolder = Nothing
+End Sub
