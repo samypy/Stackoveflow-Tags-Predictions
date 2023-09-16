@@ -86,3 +86,33 @@ Sub FindFolderInSubfolders()
     Set objMainFolder = Nothing
     Set objSubfolder = Nothing
 End Sub
+Sub ReadColumnBAndStoreInVariable()
+    Dim filePath As String
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim cell As Range
+    Dim csvData As String
+    
+    ' Specify the file path of the Excel file you want to read
+    filePath = "C:\Path\To\Your\File.xlsx"
+    
+    ' Open the Excel file in read-only mode
+    Set ws = Workbooks.Open(filePath, ReadOnly:=True).Worksheets(1)
+    
+    ' Find the last used row in column B
+    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    
+    ' Loop through each cell in column B and concatenate values with a comma
+    For Each cell In ws.Range("B1:B" & lastRow)
+        csvData = csvData & cell.Value & ","
+    Next cell
+    
+    ' Remove the trailing comma
+    csvData = Left(csvData, Len(csvData) - 1)
+    
+    ' Close the Excel file
+    Workbooks.Open(filePath).Close SaveChanges:=False
+    
+    ' Store the CSV data in the filePath variable
+    filePath = csvData
+End Sub
