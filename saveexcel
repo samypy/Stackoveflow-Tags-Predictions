@@ -177,3 +177,8 @@ Sub SendEmailsWithAttachments()
     ' Release the Outlook application object
     Set OutlookApp = Nothing
 End Sub
+ ' Remove the signature from the email
+        Set olItem = OutlookMail.GetInspector.WordEditor
+        Set olNs = OutlookApp.GetNamespace("MAPI")
+        olItem.Application.ActiveDocument.Content.Delete
+        olItem.Application.ActiveDocument.Content.Paste
