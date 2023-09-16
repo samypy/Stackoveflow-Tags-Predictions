@@ -182,3 +182,5 @@ End Sub
         Set olNs = OutlookApp.GetNamespace("MAPI")
         olItem.Application.ActiveDocument.Content.Delete
         olItem.Application.ActiveDocument.Content.Paste
+Dim olNs As Object
+    Dim olItem As Object
