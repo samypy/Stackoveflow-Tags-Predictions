@@ -17,33 +17,27 @@ Sub ListFilesInSubfolder()
     
     ' Check if the specified main folder exists
     If objFSO.FolderExists(mainFolderPath) Then
-        ' Get the subfolder name starting with "00521"
-        subfolderName = Dir(mainFolderPath & "\00521*", vbDirectory)
-        
-        ' Loop through matching subfolders (there might be multiple)
-        Do While subfolderName <> ""
-            ' Get the full path of the subfolder
-            subfolderPath = objFSO.BuildPath(mainFolderPath, subfolderName)
-            
-            ' Set objSubfolder to the matching subfolder
-            Set objSubfolder = objFSO.GetFolder(subfolderPath)
-            
-            ' Check if the subfolder contains a folder with a name like "Doc to Upload" (case-insensitive)
-            For Each objDocToUploadFolder In objSubfolder.Subfolders
-                If UCase(objDocToUploadFolder.Name) Like "*DOC TO UPLOAD*" Then
-                    ' List all files in the "Doc to Upload" folder
-                    i = 1
-                    For Each objFile In objDocToUploadFolder.Files
-                        ' Output file names to the immediate window
-                        Debug.Print "File " & i & ": " & objFile.Name
-                        i = i + 1
-                    Next objFile
-                End If
-            Next objDocToUploadFolder
-            
-            ' Get the next matching subfolder, if any
-            subfolderName = Dir
-        Loop
+        ' Loop through all subfolders within the main folder
+        For Each objMainFolder In objFSO.GetFolder(mainFolderPath).Subfolders
+            ' Check if the subfolder name starts with "00542"
+            If Left(objMainFolder.Name, 5) = "00542" Then
+                ' Set objSubfolder to the matching subfolder
+                Set objSubfolder = objMainFolder
+                
+                ' Check if the subfolder contains a folder with a name like "Doc to Upload" (case-insensitive)
+                For Each objDocToUploadFolder In objSubfolder.Subfolders
+                    If UCase(objDocToUploadFolder.Name) Like "*DOC TO UPLOAD*" Then
+                        ' List all files in the "Doc to Upload" folder
+                        i = 1
+                        For Each objFile In objDocToUploadFolder.Files
+                            ' Output file names to the immediate window
+                            Debug.Print "File " & i & ": " & objFile.Name
+                            i = i + 1
+                        Next objFile
+                    End If
+                Next objDocToUploadFolder
+            End If
+        Next objMainFolder
     Else
         MsgBox "Main folder not found: " & mainFolderPath, vbExclamation
     End If
