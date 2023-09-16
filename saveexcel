@@ -1,48 +1,57 @@
-Sub ListFilesInFolder()
-    Dim folderPath As String
-    Dim fileName As String
-    Dim folderName As String
+Sub ListFilesInSubfolder()
+    Dim mainFolderPath As String
+    Dim subfolderName As String
+    Dim docToUploadFolder As String
     Dim objFSO As Object
-    Dim objFolder As Object
+    Dim objMainFolder As Object
+    Dim objSubfolder As Object
+    Dim objDocToUploadFolder As Object
     Dim objFile As Object
     Dim i As Integer
     
-    ' Define the folder path to search
-    folderPath = "C:\Your\Path\To\Search"
+    ' Define the main folder path to search
+    mainFolderPath = "C:\Your\Main\Folder\Path"
     
     ' Initialize the FileSystemObject
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     
-    ' Check if the specified folder exists
-    If objFSO.FolderExists(folderPath) Then
-        ' Get the folder name starting with "00552"
-        folderName = Dir(folderPath & "\00552*", vbDirectory)
+    ' Check if the specified main folder exists
+    If objFSO.FolderExists(mainFolderPath) Then
+        ' Get the subfolder name starting with "00521"
+        subfolderName = Dir(mainFolderPath & "\00521*", vbDirectory)
         
-        ' Loop through matching folders (there might be multiple)
-        Do While folderName <> ""
-            ' Get the folder's full path
-            folderPath = objFSO.BuildPath(folderPath, folderName)
+        ' Loop through matching subfolders (there might be multiple)
+        Do While subfolderName <> ""
+            ' Get the full path of the subfolder
+            subfolderPath = objFSO.BuildPath(mainFolderPath, subfolderName)
             
-            ' Set objFolder to the matching folder
-            Set objFolder = objFSO.GetFolder(folderPath)
+            ' Set objSubfolder to the matching subfolder
+            Set objSubfolder = objFSO.GetFolder(subfolderPath)
             
-            ' List all files in the folder
-            i = 1
-            For Each objFile In objFolder.Files
-                ' Output file names to the immediate window
-                Debug.Print "File " & i & ": " & objFile.Name
-                i = i + 1
-            Next objFile
+            ' Check if the subfolder contains a folder with a name like "Doc to Upload" (case-insensitive)
+            For Each objDocToUploadFolder In objSubfolder.Subfolders
+                If UCase(objDocToUploadFolder.Name) Like "*DOC TO UPLOAD*" Then
+                    ' List all files in the "Doc to Upload" folder
+                    i = 1
+                    For Each objFile In objDocToUploadFolder.Files
+                        ' Output file names to the immediate window
+                        Debug.Print "File " & i & ": " & objFile.Name
+                        i = i + 1
+                    Next objFile
+                End If
+            Next objDocToUploadFolder
             
-            ' Get the next matching folder, if any
-            folderName = Dir
+            ' Get the next matching subfolder, if any
+            subfolderName = Dir
         Loop
     Else
-        MsgBox "Folder not found: " & folderPath, vbExclamation
+        MsgBox "Main folder not found: " & mainFolderPath, vbExclamation
     End If
     
     ' Release the objects
     Set objFSO = Nothing
-    Set objFolder = Nothing
+    Set objMainFolder = Nothing
+    Set objSubfolder = Nothing
+    Set objDocToUploadFolder = Nothing
     Set objFile = Nothing
 End Sub
