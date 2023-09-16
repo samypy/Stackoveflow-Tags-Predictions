@@ -116,3 +116,64 @@ Sub ReadColumnBAndStoreInVariable()
     ' Store the CSV data in the filePath variable
     filePath = csvData
 End Sub
+
+Sub SendEmailsWithAttachments()
+    Dim OutlookApp As Object
+    Dim OutlookMail As Object
+    Dim ws As Worksheet
+    Dim LastRow As Long
+    Dim Recipient As String
+    Dim Subject As String
+    Dim Body As String
+    Dim Attachments As String
+    Dim AttachmentArray() As String
+    Dim AttachmentPath As String
+    Dim i As Long
+    
+    ' Initialize Outlook
+    Set OutlookApp = CreateObject("Outlook.Application")
+    
+    ' Set the worksheet to Sheet2
+    Set ws = ThisWorkbook.Sheets("Sheet2")
+    
+    ' Find the last row in Column B (assuming Column B has the email addresses)
+    LastRow = ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
+    
+    ' Loop through each row in Column B (from row 2 to LastRow)
+    For i = 2 To LastRow
+        ' Set email details
+        Recipient = ws.Cells(i, 2).Value ' Email address from Column B
+        Subject = "Your Subject Here"
+        Body = "Your email body here."
+        Attachments = ws.Cells(i, 31).Value ' File paths from Column AE
+        
+        ' Split the Attachments string into an array based on commas
+        AttachmentArray = Split(Attachments, ",")
+        
+        ' Create a new email
+        Set OutlookMail = OutlookApp.CreateItem(0)
+        
+        ' Set email properties
+        With OutlookMail
+            .To = Recipient
+            .Subject = Subject
+            .Body = Body
+            
+            ' Attach files
+            For Each AttachmentPath In AttachmentArray
+                If Trim(AttachmentPath) <> "" Then
+                    .Attachments.Add AttachmentPath
+                End If
+            Next AttachmentPath
+            
+            ' Send the email
+            .Send
+        End With
+        
+        ' Release the Outlook email object
+        Set OutlookMail = Nothing
+    Next i
+    
+    ' Release the Outlook application object
+    Set OutlookApp = Nothing
+End Sub
