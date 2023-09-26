@@ -276,3 +276,37 @@ if matches:
     print(agenda_text)
 else:
     print("Agenda not found in the email body.")
+# Sample text
+email_body = """
+This is some introductory text.
+Research Morning call Agenda:
+- Discuss project updates
+- Review financial reports
+- Plan for the week ahead
+
+This is some more text.
+"""
+
+# Split the email body by lines
+lines = email_body.split('\n')
+
+# Initialize a flag to start capturing text
+capture_text = False
+
+# Initialize an empty list to store the captured lines
+captured_lines = []
+
+# Iterate through the lines and capture text after "Research Morning call Agenda"
+for line in lines:
+    if capture_text:
+        captured_lines.append(line)
+    elif "Research Morning call Agenda:" in line:
+        capture_text = True
+
+# Combine the captured lines into a single text
+agenda_text = '\n'.join(captured_lines)
+
+# Remove leading and trailing whitespace
+agenda_text = agenda_text.strip()
+
+print(agenda_text)
