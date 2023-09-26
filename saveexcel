@@ -254,3 +254,25 @@ Sub CheckForDifferentValues()
     ' Clean up
     Set ws = Nothing
 End Sub
+import re
+
+# Sample text
+email_body = """
+This is some introductory text.
+Research Morning call Agenda:
+- Discuss project updates
+- Review financial reports
+- Plan for the week ahead
+
+This is some more text.
+"""
+
+# Extract text after "Research Morning call Agenda" until the next new line
+pattern = r"Research Morning call Agenda:(.*?)(\n|$)"
+matches = re.search(pattern, email_body, re.DOTALL)
+
+if matches:
+    agenda_text = matches.group(1).strip()
+    print(agenda_text)
+else:
+    print("Agenda not found in the email body.")
