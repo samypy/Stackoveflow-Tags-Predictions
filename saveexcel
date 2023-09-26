@@ -202,3 +202,55 @@ End Sub
             tbl.AutoFilter.ShowAllData
         End If
     Next tbl
+
+
+Sub CheckForDifferentValues()
+    Dim ws As Worksheet
+    Dim cell As Range
+    Dim column As Range
+    Dim checkValue As Variant
+    Dim differentColumn As String
+    Dim isDifferent As Boolean
+    
+    ' Set the worksheet you want to work with
+    Set ws = ThisWorkbook.Worksheets("Sheet1") ' Change "Sheet1" to your sheet's name
+    
+    ' Initialize variables
+    isDifferent = False
+    
+    ' Loop through each cell in the range D2 to J2
+    For Each cell In ws.Range("D2:J2")
+        ' If the cell is not empty
+        If Not IsEmpty(cell.Value) Then
+            ' If checkValue is empty, set it to the current cell's value
+            If IsEmpty(checkValue) Then
+                checkValue = cell.Value
+            Else
+                ' If the current cell's value is different from checkValue, set isDifferent to True
+                If cell.Value <> checkValue Then
+                    isDifferent = True
+                    Exit For ' Exit the loop if a difference is found
+                End If
+            End If
+        End If
+    Next cell
+    
+    ' If there is a difference, find the column with the different value
+    If isDifferent Then
+        For Each column In ws.Range("D1:J1")
+            If column.Value <> checkValue Then
+                differentColumn = column.Value
+                Exit For ' Exit the loop if the different column is found
+            End If
+        Next column
+        
+        ' Display the column name with the different value
+        MsgBox "The column with a different value is: " & differentColumn
+    Else
+        ' If all values are the same, display a message
+        MsgBox "All values in the range are the same."
+    End If
+    
+    ' Clean up
+    Set ws = Nothing
+End Sub
