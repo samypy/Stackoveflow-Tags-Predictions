@@ -444,3 +444,84 @@ Sub ExtractNumberedListFromEmail()
     Set olApp = Nothing
 End Sub
 
+Sub ExtractNumberedListFromEmail()
+    Dim olApp As Outlook.Application
+    Dim olNamespace As Outlook.NameSpace
+    Dim olFolder As Outlook.MAPIFolder
+    Dim olMail As Outlook.MailItem
+    Dim strSubject As String
+    Dim strBody As String
+    Dim pattern As String
+    Dim regex As Object
+    Dim matches As Object
+    Dim i As Integer
+    Dim lastWeek As Date
+    
+    ' Define the subject to filter for
+    strSubject = "Europe"
+    
+    ' Set the date for "last week"
+    lastWeek = Date - 7
+    
+    ' Set up Outlook
+    Set olApp = New Outlook.Application
+    Set olNamespace = olApp.GetNamespace("MAPI")
+    
+    ' Get the Inbox folder
+    Set olFolder = olNamespace.GetDefaultFolder(olFolderInbox)
+    
+    ' Loop through the emails in the Inbox
+    For Each olMail In olFolder.Items
+        ' Check if the email was received since last week
+        If InStr(1, olMail.Subject, strSubject, vbTextCompare) > 0 And olMail.SenderName = "James Wilt" And olMail.ReceivedTime >= lastWeek Then
+            strBody = olMail.Body
+            ' Define the regular expression pattern to capture the numbered list directly under "Western Europe"
+            pattern = "Western Europe:(.*?)(\d+\.\s|$)"
+            
+            ' Create a regular expression object
+            Set regex = CreateObject("VBScript.RegExp")
+            With regex
+                .Global = True
+                .MultiLine = True
+                .IgnoreCase = True
+                .pattern = pattern
+            End With
+            
+            ' Execute the regular expression
+            Set matches = regex.Execute(strBody)
+            
+            ' Print the matched text (numbered list items)
+            If matches.Count > 0 Then
+                ' Extract the captured group (numbered list items)
+                Dim capturedText As String
+                capturedText = matches(0).SubMatches(0)
+                
+                ' Remove any leading or trailing whitespace
+                capturedText = Trim(capturedText)
+                
+                ' Split the captured text into individual numbered list items
+                Dim numberedListItems() As String
+                numberedListItems = Split(capturedText, vbCrLf)
+                
+                ' Print the numbered list items
+                For i = LBound(numberedListItems) To UBound(numberedListItems)
+                    Debug.Print Trim(numberedListItems(i))
+                Next i
+            Else
+                Debug.Print "No numbered list found under 'Western Europe'."
+            End If
+            
+            ' Exit the loop after processing the email
+            Exit For
+        End If
+    Next olMail
+    
+    ' Clean up objects
+    Set regex = Nothing
+    Set matches = Nothing
+    Set olMail = Nothing
+    Set olFolder = Nothing
+    Set olNamespace = Nothing
+    Set olApp = Nothing
+End Sub
+
