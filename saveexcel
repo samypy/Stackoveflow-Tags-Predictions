@@ -371,3 +371,76 @@ Sub ExtractNumberedListFromEmail()
     Set olNamespace = Nothing
     Set olApp = Nothing
 End Sub
+
+
+Sub ExtractNumberedListFromEmail()
+    Dim olApp As Outlook.Application
+    Dim olNamespace As Outlook.NameSpace
+    Dim olFolder As Outlook.MAPIFolder
+    Dim olMail As Outlook.MailItem
+    Dim strSubject As String
+    Dim strBody As String
+    Dim pattern As String
+    Dim regex As Object
+    Dim matches As Object
+    Dim i As Integer
+    Dim lastWeek As Date
+    Dim iCount As Integer
+    
+    ' Define the subject to filter for
+    strSubject = "Europe"
+    
+    ' Set the date for "last week"
+    lastWeek = Date - 7
+    
+    ' Set up Outlook
+    Set olApp = New Outlook.Application
+    Set olNamespace = olApp.GetNamespace("MAPI")
+    
+    ' Get the Inbox folder
+    Set olFolder = olNamespace.GetDefaultFolder(olFolderInbox)
+    
+    ' Get the count of emails in the Inbox
+    iCount = olFolder.Items.Count
+    
+    ' Loop through the emails in the Inbox in reverse order (from newest to oldest)
+    For i = iCount To 1 Step -1
+        Set olMail = olFolder.Items(i)
+        
+        ' Check if the email was received since last week
+        If InStr(1, olMail.Subject, strSubject, vbTextCompare) > 0 And olMail.SenderName = "James Wilt" And olMail.ReceivedTime >= lastWeek Then
+            strBody = olMail.Body
+            ' Define the regular expression pattern
+            pattern = "Western Europe:(.*?)(\d+\.\s|$)"
+            
+            ' Create a regular expression object
+            Set regex = CreateObject("VBScript.RegExp")
+            With regex
+                .Global = True
+                .MultiLine = True
+                .IgnoreCase = True
+                .pattern = pattern
+            End With
+            
+            ' Execute the regular expression
+            Set matches = regex.Execute(strBody)
+            
+            ' Print the matched text (numbered list items)
+            For i = 0 To matches.Count - 1
+                Debug.Print matches(i).SubMatches(0)
+            Next i
+            
+            ' Exit the loop after processing the email
+            Exit For
+        End If
+    Next i
+    
+    ' Clean up objects
+    Set regex = Nothing
+    Set matches = Nothing
+    Set olMail = Nothing
+    Set olFolder = Nothing
+    Set olNamespace = Nothing
+    Set olApp = Nothing
+End Sub
+
