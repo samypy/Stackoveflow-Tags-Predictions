@@ -525,3 +525,64 @@ Sub ExtractNumberedListFromEmail()
     Set olApp = Nothing
 End Sub
 
+Sub ExtractNumberedListFromEmail()
+    Dim olApp As Outlook.Application
+    Dim olNamespace As Outlook.NameSpace
+    Dim olFolder As Outlook.MAPIFolder
+    Dim olMail As Outlook.MailItem
+    Dim strSubject As String
+    Dim strBody As String
+    Dim i As Integer
+    Dim lastWeek As Date
+    Dim isCapture As Boolean
+    
+    ' Define the subject to filter for
+    strSubject = "Europe"
+    
+    ' Set the date for "last week"
+    lastWeek = Date - 7
+    
+    ' Set up Outlook
+    Set olApp = New Outlook.Application
+    Set olNamespace = olApp.GetNamespace("MAPI")
+    
+    ' Get the Inbox folder
+    Set olFolder = olNamespace.GetDefaultFolder(olFolderInbox)
+    
+    ' Loop through the emails in the Inbox (from newest to oldest)
+    For i = olFolder.Items.Count To 1 Step -1
+        Set olMail = olFolder.Items(i)
+        
+        ' Check if the email was received since last week
+        If InStr(1, olMail.Subject, strSubject, vbTextCompare) > 0 And olMail.SenderName = "James Wilt" And olMail.ReceivedTime >= lastWeek Then
+            strBody = olMail.Body
+            isCapture = False ' Flag to capture numbered list
+            
+            ' Split the email body into lines
+            Dim lines() As String
+            lines = Split(strBody, vbCrLf)
+            
+            ' Loop through the lines to capture numbered list items under "Western Europe"
+            For Each line In lines
+                If InStr(1, line, "Western Europe", vbTextCompare) > 0 Then
+                    isCapture = True
+                ElseIf isCapture And Trim(line) = "" Then
+                    ' Stop capturing when an empty line is encountered
+                    Exit For
+                ElseIf isCapture Then
+                    ' Print the captured numbered list items
+                    Debug.Print Trim(line)
+                End If
+            Next line
+            
+            ' Exit the loop after processing the email
+            Exit For
+        End If
+    Next i
+    
+    ' Clean up objects
+    Set olMail = Nothing
+    Set olFolder = Nothing
+    Set olNamespace = Nothing
+    Set olApp = Nothing
+End Sub
