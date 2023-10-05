@@ -586,3 +586,5 @@ Sub ExtractNumberedListFromEmail()
     Set olNamespace = Nothing
     Set olApp = Nothing
 End Sub
+
+Shoeb is an exceptional leader who consistently makes himself approachable when needed. Over the past year, I interacted with him regularly for weekly catch-ups, leadership calls, and more. Each time, he provided valuable, candid insights that allowed me to gain a deeper understanding of the bigger picture and further my personal development. I've gained significant knowledge from him this year, which has greatly assisted me in tackling new tasks and taking on additional responsibilities.
