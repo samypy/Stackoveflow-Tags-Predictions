@@ -1,1 +1,35 @@
+# Input data with other columns and a column containing values like "abcd:40,efgh:50"
+data = [
+    {"name": "John", "age": 30, "column_name": "abcd:40,efgh:50"},
+    {"name": "Alice", "age": 25, "column_name": "ijkl:60,mnop:70"},
+    # Add more data as needed
+]
+
+# Create a list to store the resulting rows
+result_rows = []
+
+# Iterate over the input data
+for row in data:
+    other_columns = {key: value for key, value in row.items() if key != "column_name"}
+    column_value = row["column_name"]
+
+    # Split the column value using ',' as the delimiter
+    items = column_value.split(',')
+
+    # Iterate over the split items
+    for item in items:
+        # Split each item using ':' as the delimiter
+        name, duration = item.split(':')
+
+        # Create a new row with other columns and the split 'name' and 'duration'
+        new_row = other_columns.copy()
+        new_row["Name"] = name
+        new_row["Duration"] = int(duration)
+
+        # Append the new row to the result
+        result_rows.append(new_row)
+
+# Print the result
+for row in result_rows:
+    print(row)
 
