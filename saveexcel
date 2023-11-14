@@ -33,3 +33,63 @@ for row in data:
 for row in result_rows:
     print(row)
 
+from transformers import BertTokenizer, BertForSequenceClassification
+import torch
+import re
+
+def break_sentences(sentence):
+    # Define keywords to break sentences
+    break_keywords = ['.', 'but', 'however', 'though', 'although', 'yet', 'so']
+
+    # Create a regular expression pattern for splitting
+    pattern = '|'.join(re.escape(keyword) for keyword in break_keywords)
+
+    # Split the sentence using the defined pattern
+    segments = re.split(pattern, sentence)
+
+    # Remove empty segments and strip whitespace
+    segments = [segment.strip() for segment in segments if segment.strip()]
+
+    return segments
+
+def load_local_bert_model(model_path):
+    # Load locally stored BERT model and tokenizer
+    model = BertForSequenceClassification.from_pretrained(model_path)
+    tokenizer = BertTokenizer.from_pretrained(model_path)
+
+    return model, tokenizer
+
+def identify_feedback(sentences, model, tokenizer):
+    # Prepare sentences for BERT input
+    inputs = tokenizer(sentences, padding=True, truncation=True, return_tensors='pt')
+
+    # Make predictions using the BERT model
+    with torch.no_grad():
+        outputs = model(**inputs)
+
+    # Extract sentiment labels from the model output
+    sentiments = torch.argmax(outputs.logits, dim=1).tolist()
+
+    feedback_results = list(zip(sentences, sentiments))
+
+    return feedback_results
+
+# Example sentence
+example_sentence = "I like the product but service is bad. However, the delivery was fast."
+
+# Path to the locally stored BERT model
+local_model_path = 'path/to/your/local/model'
+
+# Load the locally stored BERT model and tokenizer
+bert_model, bert_tokenizer = load_local_bert_model(local_model_path)
+
+# Break the sentence into segments
+broken_sentences = break_sentences(example_sentence)
+
+# Identify feedback for each segment using the local BERT model
+feedback_results = identify_feedback(broken_sentences, bert_model, bert_tokenizer)
+
+print("Feedback for Each Segment:")
+for result in feedback_results:
+    segment, sentiment_label = result
+    print(f"Segment: {segment}, Sentiment: {sentiment_label}")
