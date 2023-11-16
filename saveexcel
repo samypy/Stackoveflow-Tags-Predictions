@@ -7,18 +7,21 @@ pdf_file_path = 'your_file.pdf'
 # Read tables from all pages of the PDF
 tables = tabula.read_pdf(pdf_file_path, pages='all', multiple_tables=True)
 
-# Get the number of columns in each table
-column_counts = [len(table.columns) for table in tables]
+# Group tables based on the count of columns
+grouped_tables = {}
+for table in tables:
+    num_columns = len(table.columns)
+    if num_columns in grouped_tables:
+        grouped_tables[num_columns].append(table)
+    else:
+        grouped_tables[num_columns] = [table]
 
-# Check if all tables have the same number of columns
-if len(set(column_counts)) == 1:
-    # Combine tables from all pages into a single DataFrame
-    combined_table = pd.concat(tables, ignore_index=True)
+# Export grouped tables to separate sheets in a single Excel file
+excel_output_path = 'grouped_tables.xlsx'
+with pd.ExcelWriter(excel_output_path, engine='openpyxl') as writer:
+    for count, table_list in grouped_tables.items():
+        combined_table = pd.concat(table_list, ignore_index=True)
+        sheet_name = f'Tables_{count}_Columns'
+        combined_table.to_excel(writer, sheet_name=sheet_name, index=False)
 
-    # Export the combined table to an Excel file
-    excel_output_path = 'combined_table.xlsx'
-    combined_table.to_excel(excel_output_path, index=False)
-
-    print(f'Tables from {len(tables)} pages combined and exported to {excel_output_path}')
-else:
-    print('Tables have different numbers of columns. Cannot merge.')
+print(f'Tables grouped and exported to {excel_output_path}')
