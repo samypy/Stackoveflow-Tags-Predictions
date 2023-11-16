@@ -450,3 +450,21 @@ new_texts_tfidf = tfidf_transformer.transform(new_texts_counts)
 
 predictions = loaded_model.predict(new_texts_tfidf)
 print(predictions)
+
+import tabula
+import pandas as pd
+
+# Replace 'your_file.pdf' with the actual PDF file path
+pdf_file_path = 'your_file.pdf'
+
+# Read tables from all pages of the PDF
+tables = tabula.read_pdf(pdf_file_path, pages='all', multiple_tables=True)
+
+# Combine tables from all pages into a single DataFrame
+combined_table = pd.concat(tables, ignore_index=True)
+
+# Export the combined table to an Excel file
+excel_output_path = 'combined_table.xlsx'
+combined_table.to_excel(excel_output_path, index=False)
+
+print(f'Tables from {len(tables)} pages combined and exported to {excel_output_path}')
