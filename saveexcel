@@ -25,3 +25,50 @@ with pd.ExcelWriter(excel_output_path, engine='openpyxl') as writer:
         combined_table.to_excel(writer, sheet_name=sheet_name, index=False)
 
 print(f'Tables grouped and exported to {excel_output_path}')
+
+import fitz  # PyMuPDF
+import re
+import pandas as pd
+
+def extract_tables_from_pdf(pdf_path, column_headers):
+    # Convert PDF to text using PyMuPDF
+    doc = fitz.open(pdf_path)
+    text = ""
+    for page_num in range(doc.page_count):
+        page = doc[page_num]
+        text += page.get_text()
+
+    # Define the regex pattern for identifying tables based on column headers
+    regex_pattern = '|'.join(map(re.escape, column_headers))
+    table_pattern = f"({regex_pattern}).*?(\n.*?)+"
+
+    # Find all matches of the table pattern in the text
+    matches = re.finditer(table_pattern, text, re.DOTALL)
+
+    # Extract tables into a list of DataFrames
+    tables = []
+    for match in matches:
+        table_text = match.group(0)
+        table_df = pd.read_csv(pd.compat.StringIO(table_text), sep='\s+')
+        tables.append(table_df)
+
+    return tables
+
+# Replace 'your_file.pdf' with the actual PDF file path
+pdf_path = 'your_file.pdf'
+column_headers = ['Bank', 'Voter name', 'Name', 'Rank']
+
+# Extract tables based on column headers
+tables = extract_tables_from_pdf(pdf_path, column_headers)
+
+# Display the extracted tables
+for idx, table in enumerate(tables):
+    print(f'Table {idx + 1}:\n{table}\n')
+
+# Export the tables to Excel
+excel_output_path = 'extracted_tables.xlsx'
+with pd.ExcelWriter(excel_output_path, engine='openpyxl') as writer:
+    for idx, table in enumerate(tables):
+        table.to_excel(writer, sheet_name=f'Table_{idx + 1}', index=False)
+
+print(f'Tables extracted and exported to {excel_output_path}')
