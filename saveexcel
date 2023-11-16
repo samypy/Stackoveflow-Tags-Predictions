@@ -93,3 +93,106 @@ print("Feedback for Each Segment:")
 for result in feedback_results:
     segment, sentiment_label = result
     print(f"Segment: {segment}, Sentiment: {sentiment_label}")
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics import accuracy_score
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+import nltk
+import string
+
+# Download NLTK resources (if not downloaded)
+nltk.download('punkt')
+nltk.download('stopwords')
+
+# Sample labeled dataset (replace with your own dataset)
+sentences = ["I love this product!", "The service was terrible.", "Great experience overall.", "Not satisfied with the quality."]
+labels = [1, 0, 1, 0]  # 1 for positive, 0 for negative
+
+# Text preprocessing
+stop_words = set(stopwords.words('english'))
+stemmer = PorterStemmer()
+
+def preprocess_text(text):
+    # Tokenization
+    tokens = word_tokenize(text.lower())
+    
+    # Removing punctuation and stopwords
+    tokens = [stemmer.stem(token) for token in tokens if token.isalnum() and token not in stop_words]
+    
+    return " ".join(tokens)
+
+# Apply text preprocessing to each sentence
+preprocessed_sentences = [preprocess_text(sentence) for sentence in sentences]
+
+# Convert text to bag-of-words representation
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(preprocessed_sentences).toarray()
+
+# Convert to PyTorch tensors
+X_tensor = torch.tensor(X, dtype=torch.float32)
+y_tensor = torch.tensor(labels, dtype=torch.float32).view(-1, 1)
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_tensor, y_tensor, test_size=0.2, random_state=42)
+
+# Define the neural network model
+class SentimentModel(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(SentimentModel, self).__init__()
+        self.embedding = nn.Embedding(input_size, hidden_size)
+        self.lstm = nn.LSTM(hidden_size, hidden_size, batch_first=True)
+        self.fc = nn.Linear(hidden_size, output_size)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        x = self.embedding(x)
+        _, (x, _) = self.lstm(x)
+        x = x.squeeze(0)
+        x = self.fc(x)
+        x = self.sigmoid(x)
+        return x
+
+# Model parameters
+input_size = X_train.shape[1]
+hidden_size = 64
+output_size = 1
+
+# Instantiate the model
+model = SentimentModel(input_size, hidden_size, output_size)
+
+# Loss function and optimizer
+criterion = nn.BCELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+# Training loop
+num_epochs = 10
+for epoch in range(num_epochs):
+    model.train()
+    optimizer.zero_grad()
+    
+    # Forward pass
+    outputs = model(X_train)
+    loss = criterion(outputs, y_train)
+    
+    # Backward pass and optimization
+    loss.backward()
+    optimizer.step()
+    
+    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
+
+# Evaluation on the test set
+model.eval()
+with torch.no_grad():
+    test_outputs = model(X_test)
+    predicted_labels = (test_outputs > 0.5).float()
+
+accuracy = accuracy_score(y_test.numpy(), predicted_labels.numpy())
+print(f'Accuracy on the test set: {accuracy:.4f}')
+
