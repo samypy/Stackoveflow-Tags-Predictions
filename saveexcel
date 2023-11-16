@@ -373,3 +373,59 @@ for name, classifier in classifiers:
 
     print(f'\n{name}:\nAccuracy: {accuracy}\nClassification Report:\n{report}')
 
+
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, classification_report
+from imblearn.over_sampling import RandomOverSampler
+
+# Sample data (replace this with your own dataset)
+data = {'text': ['I love this product!', 'Not bad, but could be better.', 'Terrible experience.',
+                 'Excellent service!', 'Average performance.']}
+labels = ['positive', 'neutral', 'negative', 'positive', 'neutral']
+
+df = pd.DataFrame({'text': data['text'], 'label': labels})
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(df['text'], df['label'], test_size=0.2, random_state=42)
+
+# Use RandomOverSampler to handle class imbalance in the training set
+ros = RandomOverSampler(random_state=42)
+X_train_resampled, y_train_resampled = ros.fit_resample(X_train.values.reshape(-1, 1), y_train)
+
+X_train_resampled = X_train_resampled.flatten()
+
+# Text preprocessing and feature extraction using CountVectorizer and TfidfTransformer
+count_vectorizer = CountVectorizer()
+tfidf_transformer = TfidfTransformer()
+
+X_train_counts = count_vectorizer.fit_transform(X_train_resampled)
+X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+
+X_test_counts = count_vectorizer.transform(X_test)
+X_test_tfidf = tfidf_transformer.transform(X_test_counts)
+
+# Define a list of classifiers
+classifiers = [
+    ('Multinomial Naive Bayes', MultinomialNB()),
+    ('Logistic Regression', LogisticRegression()),
+    ('Random Forest', RandomForestClassifier()),
+    ('Support Vector Machine', SVC())
+]
+
+# Train and evaluate each classifier
+for name, classifier in classifiers:
+    classifier.fit(X_train_tfidf, y_train_resampled)
+    y_pred = classifier.predict(X_test_tfidf)
+
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+
+    print(f'\n{name}:\nAccuracy: {accuracy}\nClassification Report:\n{report}')
