@@ -1,14 +1,12 @@
 import PyPDF2
+from io import BytesIO
 import re
 import pandas as pd
+from pdfminer.high_level import extract_text
 
 def extract_tables_from_pdf(pdf_path, column_headers):
-    # Read PDF and extract text
-    with open(pdf_path, 'rb') as file:
-        pdf_reader = PyPDF2.PdfReader(file)
-        text = ''
-        for page_num in range(len(pdf_reader.pages)):
-            text += pdf_reader.pages[page_num].extract_text()
+    # Read PDF and extract text using pdfminer
+    text = extract_text(pdf_path)
 
     # Define the regex pattern for identifying tables based on column headers
     regex_pattern = '|'.join(map(re.escape, column_headers))
