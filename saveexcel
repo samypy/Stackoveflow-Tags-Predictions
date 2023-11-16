@@ -429,3 +429,24 @@ for name, classifier in classifiers:
     report = classification_report(y_test, y_pred)
 
     print(f'\n{name}:\nAccuracy: {accuracy}\nClassification Report:\n{report}')
+
+
+import joblib
+
+# Assuming you've already trained your Random Forest model
+random_forest_model = RandomForestClassifier()
+random_forest_model.fit(X_train_tfidf, y_train_resampled)
+
+# Save the trained model to a file
+joblib.dump(random_forest_model, 'random_forest_model.pkl')
+
+# Later, you can load the model for prediction
+loaded_model = joblib.load('random_forest_model.pkl')
+
+# Example of making predictions
+new_texts = ['Amazing product!', 'Disappointing experience.']
+new_texts_counts = count_vectorizer.transform(new_texts)
+new_texts_tfidf = tfidf_transformer.transform(new_texts_counts)
+
+predictions = loaded_model.predict(new_texts_tfidf)
+print(predictions)
