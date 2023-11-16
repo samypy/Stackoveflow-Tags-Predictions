@@ -1,42 +1,14 @@
-import tabula
-import pandas as pd
-
-# Replace 'your_file.pdf' with the actual PDF file path
-pdf_file_path = 'your_file.pdf'
-
-# Read tables from all pages of the PDF
-tables = tabula.read_pdf(pdf_file_path, pages='all', multiple_tables=True)
-
-# Group tables based on the count of columns
-grouped_tables = {}
-for table in tables:
-    num_columns = len(table.columns)
-    if num_columns in grouped_tables:
-        grouped_tables[num_columns].append(table)
-    else:
-        grouped_tables[num_columns] = [table]
-
-# Export grouped tables to separate sheets in a single Excel file
-excel_output_path = 'grouped_tables.xlsx'
-with pd.ExcelWriter(excel_output_path, engine='openpyxl') as writer:
-    for count, table_list in grouped_tables.items():
-        combined_table = pd.concat(table_list, ignore_index=True)
-        sheet_name = f'Tables_{count}_Columns'
-        combined_table.to_excel(writer, sheet_name=sheet_name, index=False)
-
-print(f'Tables grouped and exported to {excel_output_path}')
-
-import fitz  # PyMuPDF
+import PyPDF2
 import re
 import pandas as pd
 
 def extract_tables_from_pdf(pdf_path, column_headers):
-    # Convert PDF to text using PyMuPDF
-    doc = fitz.open(pdf_path)
-    text = ""
-    for page_num in range(doc.page_count):
-        page = doc[page_num]
-        text += page.get_text()
+    # Read PDF and extract text
+    with open(pdf_path, 'rb') as file:
+        pdf_reader = PyPDF2.PdfReader(file)
+        text = ''
+        for page_num in range(len(pdf_reader.pages)):
+            text += pdf_reader.pages[page_num].extract_text()
 
     # Define the regex pattern for identifying tables based on column headers
     regex_pattern = '|'.join(map(re.escape, column_headers))
