@@ -27,3 +27,37 @@ main_df['SOE'] = main_df['Comments'].apply(find_soe)
 
 # Print the updated main_df
 print(main_df)
+
+import pandas as pd
+
+# Assuming you have two dataframes: main_df and analyst_df
+
+# Sample data
+main_data = {'Comments': ['Analyst1 mentioned', 'No analyst here', 'Analyst2 noted', 'No match']}
+analyst_data = {'BVname': ['BV1', 'BV2'],
+                'CName': ['Analyst1', 'Analyst2'],
+                'SOE': ['SOE1', 'SOE2']}
+
+main_df = pd.DataFrame(main_data)
+analyst_df = pd.DataFrame(analyst_data)
+
+# Function to find unique SOE for each comment
+def find_soe(comment):
+    analyst_names = analyst_df['CName'].values
+    found_analysts = [analyst for analyst in analyst_names if analyst in comment]
+
+    unique_soe_values = set()
+    for analyst in found_analysts:
+        soe_value = analyst_df.loc[analyst_df['CName'] == analyst, 'SOE'].values
+        unique_soe_values.update(soe_value)
+
+    if unique_soe_values:
+        return ', '.join(unique_soe_values)
+    else:
+        return 'No Match'
+
+# Apply the function to create the new 'SOE' column in main_df
+main_df['SOE'] = main_df['Comments'].apply(find_soe)
+
+# Print the updated main_df
+print(main_df)
