@@ -42,3 +42,34 @@ with pd.ExcelWriter(excel_output_path, engine='openpyxl') as writer:
         table.to_excel(writer, sheet_name=f'Table_{idx + 1}', index=False)
 
 print(f'Tables extracted and exported to {excel_output_path}')
+
+import re
+import pandas as pd
+
+# Sample PDF text (replace this with your actual PDF text)
+pdf_text = """
+Some irrelevant text here.
+
+Region   Voter   Contact   Comments
+East     John    123456    Good
+West     Alice            Bad
+North             789012    Excellent
+
+More irrelevant text here.
+"""
+
+# Define a regular expression pattern to capture the table
+pattern = re.compile(r'(Region|Voter|Contact|Comments)\s*(.*?)(?=(?:Region|Voter|Contact|Comments)|$)')
+
+# Find all matches in the PDF text
+matches = pattern.findall(pdf_text)
+
+# Extract column headers and values
+headers, values = zip(*matches)
+
+# Convert the lists into a DataFrame
+df = pd.DataFrame([values], columns=headers)
+
+# Display the resulting DataFrame
+print(df)
+
