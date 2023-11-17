@@ -1,75 +1,29 @@
-import PyPDF2
-from io import BytesIO
-import re
-import pandas as pd
-from pdfminer.high_level import extract_text
-
-def extract_tables_from_pdf(pdf_path, column_headers):
-    # Read PDF and extract text using pdfminer
-    text = extract_text(pdf_path)
-
-    # Define the regex pattern for identifying tables based on column headers
-    regex_pattern = '|'.join(map(re.escape, column_headers))
-    table_pattern = f"({regex_pattern}).*?(\n.*?)+"
-
-    # Find all matches of the table pattern in the text
-    matches = re.finditer(table_pattern, text, re.DOTALL)
-
-    # Extract tables into a list of DataFrames
-    tables = []
-    for match in matches:
-        table_text = match.group(0)
-        table_df = pd.read_csv(pd.compat.StringIO(table_text), sep='\s+')
-        tables.append(table_df)
-
-    return tables
-
-# Replace 'your_file.pdf' with the actual PDF file path
-pdf_path = 'your_file.pdf'
-column_headers = ['Bank', 'Voter name', 'Name', 'Rank']
-
-# Extract tables based on column headers
-tables = extract_tables_from_pdf(pdf_path, column_headers)
-
-# Display the extracted tables
-for idx, table in enumerate(tables):
-    print(f'Table {idx + 1}:\n{table}\n')
-
-# Export the tables to Excel
-excel_output_path = 'extracted_tables.xlsx'
-with pd.ExcelWriter(excel_output_path, engine='openpyxl') as writer:
-    for idx, table in enumerate(tables):
-        table.to_excel(writer, sheet_name=f'Table_{idx + 1}', index=False)
-
-print(f'Tables extracted and exported to {excel_output_path}')
-
-import re
 import pandas as pd
 
-# Sample PDF text (replace this with your actual PDF text)
-pdf_text = """
-Some irrelevant text here.
+# Assuming you have two dataframes: main_df and analyst_df
 
-Region   Voter   Contact   Comments
-East     John    123456    Good
-West     Alice            Bad
-North             789012    Excellent
+# Sample data
+main_data = {'Comments': ['Analyst1 mentioned', 'No analyst here', 'Analyst2 noted', 'No match']}
+analyst_data = {'BVname': ['BV1', 'BV2'],
+                'CName': ['Analyst1', 'Analyst2'],
+                'SOE': ['SOE1', 'SOE2']}
 
-More irrelevant text here.
-"""
+main_df = pd.DataFrame(main_data)
+analyst_df = pd.DataFrame(analyst_data)
 
-# Define a regular expression pattern to capture the table
-pattern = re.compile(r'(Region|Voter|Contact|Comments)\s*(.*?)(?=(?:Region|Voter|Contact|Comments)|$)')
+# Function to find SOE for each comment
+def find_soe(comment):
+    analyst_names = analyst_df['CName'].values
+    found_analysts = [analyst for analyst in analyst_names if analyst in comment]
 
-# Find all matches in the PDF text
-matches = pattern.findall(pdf_text)
+    if found_analysts:
+        soe_values = analyst_df.loc[analyst_df['CName'].isin(found_analysts), 'SOE'].tolist()
+        return ', '.join(soe_values)
+    else:
+        return 'No Match'
 
-# Extract column headers and values
-headers, values = zip(*matches)
+# Apply the function to create the new 'SOE' column in main_df
+main_df['SOE'] = main_df['Comments'].apply(find_soe)
 
-# Convert the lists into a DataFrame
-df = pd.DataFrame([values], columns=headers)
-
-# Display the resulting DataFrame
-print(df)
-
+# Print the updated main_df
+print(main_df)
