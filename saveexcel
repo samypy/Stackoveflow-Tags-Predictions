@@ -93,3 +93,67 @@ root_folder = '/path/to/BV Documents'
 
 # Run the consolidation
 consolidate_excel_files(root_folder)
+
+import os
+import pandas as pd
+from tqdm import tqdm
+
+def get_all_file_paths(root_folder):
+    file_paths = []
+
+    for region_folder in os.listdir(root_folder):
+        region_path = os.path.join(root_folder, region_folder)
+        if os.path.isdir(region_path):
+            for client_folder in os.listdir(region_path):
+                client_path = os.path.join(region_path, client_folder)
+                if os.path.isdir(client_path):
+                    working_folder = os.path.join(client_path, 'Working Files')
+                    if os.path.exists(working_folder):
+                        files = [f for f in os.listdir(working_folder) if f.endswith('.xlsm')]
+                        file_paths.extend([os.path.join(working_folder, file) for file in files])
+
+    return file_paths
+
+def consolidate_files(file_paths):
+    try:
+        df_list = []
+
+        for file_path in tqdm(file_paths, desc="Consolidating Files", unit="file"):
+            try:
+                df = pd.read_excel(file_path, engine='openpyxl', usecols='A:Z', skiprows=7)
+                df['ClientFolder'] = os.path.basename(os.path.dirname(os.path.dirname(file_path)))
+                df['Region'] = os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(file_path))))
+                df_list.append(df)
+            except pd.errors.ParserError as e:
+                print(f"Skipping file {file_path}. Error: {e}")
+
+        if df_list:
+            validate_columns(df_list)
+
+            consolidated_df = pd.concat(df_list, ignore_index=True)
+            desktop_path = os.path.join(os.path.expanduser("~"), 'Desktop')
+            consolidated_file_path = os.path.join(desktop_path, 'consolidated_partial.xlsx')
+            consolidated_df.to_excel(consolidated_file_path, index=False, engine='openpyxl')
+            print(f"Consolidated {len(df_list)} files. Saved to {consolidated_file_path}")
+
+        else:
+            print("No valid Excel files found.")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+def validate_columns(df_list):
+    num_columns = len(df_list[0].columns)
+    for df in df_list[1:]:
+        if len(df.columns) != num_columns:
+            print("Number of columns in Excel files does not match. Skipping file.")
+            raise ValueError("Number of columns in Excel files does not match.")
+
+# Specify the root folder containing region folders
+root_folder = '/path/to/BV Documents'
+
+# Get all file paths
+all_file_paths = get_all_file_paths(root_folder)
+
+# Run the consolidation
+consolidate_files(all_file_paths)
