@@ -1,5 +1,4 @@
 
-
 import os
 import pandas as pd
 from concurrent.futures import ProcessPoolExecutor
@@ -28,6 +27,9 @@ def consolidate_excel_files(root_folder):
             # Wait for all tasks to complete
             for future in tqdm(futures, desc="Regions", unit="region"):
                 future.result()
+
+            # Consolidate all files into a single file on the desktop
+            consolidate_on_desktop(root_folder)
 
             # Save progress after processing all regions
             save_progress(progress_file, current_progress)
@@ -72,7 +74,7 @@ def process_client_folder(working_folder, files, client_folder, region_path):
         for file in files:
             file_path = os.path.join(working_folder, file)
             try:
-                df = pd.read_excel(file_path, engine='openpyxl')
+                df = pd.read_excel(file_path, engine='openpyxl', usecols='A:Z')  # Include only columns A to Z
                 # Add new columns with the client folder name, region, and client
                 df['ClientFolder'] = client_folder
                 df['Region'] = os.path.basename(region_path)
@@ -84,12 +86,56 @@ def process_client_folder(working_folder, files, client_folder, region_path):
             validate_columns(df_list)
 
             consolidated_df = pd.concat(df_list, ignore_index=True)
-            consolidated_file_path = os.path.join(working_folder, 'consolidated.xlsx')
+            # Save the consolidated DataFrame to the desktop
+            desktop_path = os.path.join(os.path.expanduser("~"), 'Desktop')
+            consolidated_file_path = os.path.join(desktop_path, 'consolidated.xlsx')
             consolidated_df.to_excel(consolidated_file_path, index=False, engine='openpyxl')
-            print(f"Consolidated {len(files)} files in {working_folder}. Saved to {consolidated_file_path}")
+            print(f"Consolidated {len(df_list)} files. Saved to {consolidated_file_path}")
 
         else:
             print(f"No valid Excel files found in {working_folder}")
+
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        print(f"An error occurred: {e}")
+
+def consolidate_on_desktop(root_folder):
+    try:
+        df_list = []
+
+        for region_folder in os.listdir(root_folder):
+            region_path = os.path.join(root_folder, region_folder)
+
+            for client_folder in os.listdir(region_path):
+                client_path = os.path.join(region_path, client_folder)
+                working_folder = os.path.join(client_path, 'Working Files')
+
+                if os.path.exists(working_folder):
+                    files = [f for f in os.listdir(working_folder) if f.endswith('.xlsm')]
+                    if files:
+                        for file in files:
+                            file_path = os.path.join(working_folder, file)
+                            try:
+                                df = pd.read_excel(file_path, engine='openpyxl', usecols='A:Z')  # Include only columns A to Z
+                                # Add new columns with the client folder name, region, and client
+                                df['ClientFolder'] = client_folder
+                                df['Region'] = region_folder
+                                df_list.append(df)
+                            except pd.errors.ParserError as e:
+                                logging.warning(f"Skipping file {file_path}. Error: {e}")
+
+        if df_list:
+            validate_columns(df_list)
+
+            consolidated_df = pd.concat(df_list, ignore_index=True)
+            # Save the consolidated DataFrame to the desktop
+            desktop_path = os.path.join(os.path.expanduser("~"), 'Desktop')
+            consolidated_file_path = os.path.join(desktop_path, 'consolidated.xlsx')
+            consolidated_df.to_excel(consolidated_file_path, index=False, engine='openpyxl')
+            print(f"Consolidated {len(df_list)} files. Saved to {consolidated_file_path}")
+
+        else:
+            print("No valid Excel files found in the specified folders.")
 
     except Exception as e:
         logging.error(f"An error occurred: {e}")
