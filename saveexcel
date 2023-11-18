@@ -26,7 +26,11 @@ def consolidate_excel_files(root_folder):
 
             # Wait for all tasks to complete
             for future in tqdm(futures, desc="Regions", unit="region"):
-                future.result()
+                try:
+                    future.result()
+                except Exception as e:
+                    logging.error(f"Error in one of the processes: {e}")
+                    print(f"Error in one of the processes: {e}")
 
             # Save the consolidated file on the desktop
             consolidate_on_desktop(root_folder)
@@ -60,7 +64,11 @@ def consolidate_files(region_path, current_progress):
 
             # Wait for all tasks to complete
             for future in tqdm(futures, desc="Clients", unit="client"):
-                future.result()
+                try:
+                    future.result()
+                except Exception as e:
+                    logging.error(f"Error in one of the processes: {e}")
+                    print(f"Error in one of the processes: {e}")
 
             # Save the consolidated file after processing each client folder
             consolidate_on_desktop(region_path)
@@ -155,12 +163,4 @@ def validate_columns(df_list):
     # Validate that the number of columns in all DataFrames is the same
     num_columns = len(df_list[0].columns)
     for df in df_list[1:]:
-        if len(df.columns) != num_columns:
-            logging.warning("Number of columns in Excel files does not match. Skipping file.")
-            raise ValueError("Number of columns in Excel files does not match.")
-
-# Specify the root folder containing region folders
-root_folder = '/path/to/BV Documents'
-
-# Run the consolidation
-consolidate_excel_files(root_folder)
+        if len
