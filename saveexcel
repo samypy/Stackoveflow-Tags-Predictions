@@ -1,5 +1,8 @@
+
+
 import os
 import pandas as pd
+from concurrent.futures import ProcessPoolExecutor
 from tqdm import tqdm
 import logging
 
@@ -15,15 +18,20 @@ def consolidate_excel_files(root_folder):
         region_folders = [f for f in os.listdir(root_folder) if os.path.isdir(os.path.join(root_folder, f))]
         total_regions = len(region_folders)
 
-        for i, region_folder in enumerate(tqdm(region_folders, desc="Regions", unit="region", initial=current_progress['region_index'])):
-            region_path = os.path.join(root_folder, region_folder)
-            current_progress['region_index'] = i
-            consolidate_files(region_path, current_progress)
+        with ProcessPoolExecutor() as executor:
+            futures = []
+            for i, region_folder in enumerate(region_folders[current_progress['region_index']:]):
+                region_path = os.path.join(root_folder, region_folder)
+                current_progress['region_index'] = i
+                futures.append(executor.submit(consolidate_files, region_path, current_progress))
 
-            # Save progress after every 10% completion
-            if total_regions > 0 and (i + 1) % max(1, total_regions // 10) == 0:
-                save_progress(progress_file, current_progress)
-                logging.info(f"Saved progress after processing {i + 1}/{total_regions} regions.")
+            # Wait for all tasks to complete
+            for future in tqdm(futures, desc="Regions", unit="region"):
+                future.result()
+
+            # Save progress after processing all regions
+            save_progress(progress_file, current_progress)
+            logging.info(f"Saved progress after processing all regions.")
 
         logging.info("Consolidation completed successfully.")
 
@@ -36,44 +44,53 @@ def consolidate_files(region_path, current_progress):
         client_folders = [f for f in os.listdir(region_path) if os.path.isdir(os.path.join(region_path, f))]
         total_clients = len(client_folders)
 
-        for i, client_folder in enumerate(tqdm(client_folders, desc="Clients", unit="client", leave=False, initial=current_progress['client_index'])):
-            client_path = os.path.join(region_path, client_folder)
-            current_progress['client_index'] = i
-            working_folder = os.path.join(client_path, 'Working Files')
-            
-            if os.path.exists(working_folder):
-                files = [f for f in os.listdir(working_folder) if f.endswith('.xlsm')]
-                if files:
-                    df_list = []
+        with ProcessPoolExecutor() as executor:
+            futures = []
+            for i, client_folder in enumerate(client_folders[current_progress['client_index']:]):
+                client_path = os.path.join(region_path, client_folder)
+                current_progress['client_index'] = i
+                working_folder = os.path.join(client_path, 'Working Files')
+                
+                if os.path.exists(working_folder):
+                    files = [f for f in os.listdir(working_folder) if f.endswith('.xlsm')]
+                    if files:
+                        futures.append(executor.submit(process_client_folder, working_folder, files, client_folder, region_path))
 
-                    for file in files:
-                        file_path = os.path.join(working_folder, file)
-                        try:
-                            df = pd.read_excel(file_path, engine='openpyxl')
-                            # Add new columns with the client folder name, region, and client
-                            df['ClientFolder'] = client_folder
-                            df['Region'] = os.path.basename(region_path)
-                            df_list.append(df)
-                        except pd.errors.ParserError as e:
-                            logging.warning(f"Skipping file {file_path}. Error: {e}")
-
-                    if df_list:
-                        validate_columns(df_list)
-
-                        consolidated_df = pd.concat(df_list, ignore_index=True)
-                        consolidated_file_path = os.path.join(working_folder, 'consolidated.xlsx')
-                        consolidated_df.to_excel(consolidated_file_path, index=False)
-                        print(f"Consolidated {len(files)} files in {working_folder}. Saved to {consolidated_file_path}")
-
-                        # Save progress after every 10% completion
-                        if total_clients > 0 and (i + 1) % max(1, total_clients // 10) == 0:
-                            save_progress(progress_file, current_progress)
-                            logging.info(f"Saved progress after processing {i + 1}/{total_clients} clients in {region_path}.")
-
-                    else:
-                        print(f"No valid Excel files found in {working_folder}")
+            # Wait for all tasks to complete
+            for future in tqdm(futures, desc="Clients", unit="client"):
+                future.result()
 
         current_progress['client_index'] = 0  # Reset client index for the next region
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        print(f"An error occurred: {e}")
+
+def process_client_folder(working_folder, files, client_folder, region_path):
+    try:
+        df_list = []
+
+        for file in files:
+            file_path = os.path.join(working_folder, file)
+            try:
+                df = pd.read_excel(file_path, engine='openpyxl')
+                # Add new columns with the client folder name, region, and client
+                df['ClientFolder'] = client_folder
+                df['Region'] = os.path.basename(region_path)
+                df_list.append(df)
+            except pd.errors.ParserError as e:
+                logging.warning(f"Skipping file {file_path}. Error: {e}")
+
+        if df_list:
+            validate_columns(df_list)
+
+            consolidated_df = pd.concat(df_list, ignore_index=True)
+            consolidated_file_path = os.path.join(working_folder, 'consolidated.xlsx')
+            consolidated_df.to_excel(consolidated_file_path, index=False, engine='openpyxl')
+            print(f"Consolidated {len(files)} files in {working_folder}. Saved to {consolidated_file_path}")
+
+        else:
+            print(f"No valid Excel files found in {working_folder}")
+
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         print(f"An error occurred: {e}")
@@ -103,4 +120,3 @@ root_folder = '/path/to/BV Documents'
 
 # Run the consolidation
 consolidate_excel_files(root_folder)
-
