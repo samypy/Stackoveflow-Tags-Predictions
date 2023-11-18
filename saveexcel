@@ -28,7 +28,7 @@ def consolidate_excel_files(root_folder):
             for future in tqdm(futures, desc="Regions", unit="region"):
                 future.result()
 
-            # Consolidate all files into a single file on the desktop
+            # Save the consolidated file on the desktop
             consolidate_on_desktop(root_folder)
 
             # Save progress after processing all regions
@@ -62,6 +62,9 @@ def consolidate_files(region_path, current_progress):
             for future in tqdm(futures, desc="Clients", unit="client"):
                 future.result()
 
+            # Save the consolidated file after processing each client folder
+            consolidate_on_desktop(region_path)
+
         current_progress['client_index'] = 0  # Reset client index for the next region
     except Exception as e:
         logging.error(f"An error occurred: {e}")
@@ -88,9 +91,9 @@ def process_client_folder(working_folder, files, client_folder, region_path):
             consolidated_df = pd.concat(df_list, ignore_index=True)
             # Save the consolidated DataFrame to the desktop
             desktop_path = os.path.join(os.path.expanduser("~"), 'Desktop')
-            consolidated_file_path = os.path.join(desktop_path, 'consolidated.xlsx')
+            consolidated_file_path = os.path.join(desktop_path, 'consolidated_partial.xlsx')
             consolidated_df.to_excel(consolidated_file_path, index=False, engine='openpyxl')
-            print(f"Consolidated {len(df_list)} files. Saved to {consolidated_file_path}")
+            print(f"Consolidated {len(df_list)} files in {working_folder}. Saved to {consolidated_file_path}")
 
         else:
             print(f"No valid Excel files found in {working_folder}")
@@ -99,30 +102,25 @@ def process_client_folder(working_folder, files, client_folder, region_path):
         logging.error(f"An error occurred: {e}")
         print(f"An error occurred: {e}")
 
-def consolidate_on_desktop(root_folder):
+def consolidate_on_desktop(folder_path):
     try:
         df_list = []
 
-        for region_folder in os.listdir(root_folder):
-            region_path = os.path.join(root_folder, region_folder)
+        working_folder = os.path.join(folder_path, 'Working Files')
 
-            for client_folder in os.listdir(region_path):
-                client_path = os.path.join(region_path, client_folder)
-                working_folder = os.path.join(client_path, 'Working Files')
-
-                if os.path.exists(working_folder):
-                    files = [f for f in os.listdir(working_folder) if f.endswith('.xlsm')]
-                    if files:
-                        for file in files:
-                            file_path = os.path.join(working_folder, file)
-                            try:
-                                df = pd.read_excel(file_path, engine='openpyxl', usecols='A:Z')  # Include only columns A to Z
-                                # Add new columns with the client folder name, region, and client
-                                df['ClientFolder'] = client_folder
-                                df['Region'] = region_folder
-                                df_list.append(df)
-                            except pd.errors.ParserError as e:
-                                logging.warning(f"Skipping file {file_path}. Error: {e}")
+        if os.path.exists(working_folder):
+            files = [f for f in os.listdir(working_folder) if f.endswith('.xlsm')]
+            if files:
+                for file in files:
+                    file_path = os.path.join(working_folder, file)
+                    try:
+                        df = pd.read_excel(file_path, engine='openpyxl', usecols='A:Z')  # Include only columns A to Z
+                        # Add new columns with the client folder name, region, and client
+                        df['ClientFolder'] = os.path.basename(folder_path)
+                        df['Region'] = os.path.basename(os.path.dirname(folder_path))
+                        df_list.append(df)
+                    except pd.errors.ParserError as e:
+                        logging.warning(f"Skipping file {file_path}. Error: {e}")
 
         if df_list:
             validate_columns(df_list)
@@ -130,12 +128,12 @@ def consolidate_on_desktop(root_folder):
             consolidated_df = pd.concat(df_list, ignore_index=True)
             # Save the consolidated DataFrame to the desktop
             desktop_path = os.path.join(os.path.expanduser("~"), 'Desktop')
-            consolidated_file_path = os.path.join(desktop_path, 'consolidated.xlsx')
+            consolidated_file_path = os.path.join(desktop_path, 'consolidated_partial.xlsx')
             consolidated_df.to_excel(consolidated_file_path, index=False, engine='openpyxl')
-            print(f"Consolidated {len(df_list)} files. Saved to {consolidated_file_path}")
+            print(f"Consolidated {len(df_list)} files in {folder_path}. Saved to {consolidated_file_path}")
 
         else:
-            print("No valid Excel files found in the specified folders.")
+            print(f"No valid Excel files found in {working_folder}")
 
     except Exception as e:
         logging.error(f"An error occurred: {e}")
