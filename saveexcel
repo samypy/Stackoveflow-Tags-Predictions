@@ -1,312 +1,53 @@
+Enhanced Analytical Capabilities:
 
-import os
-import pandas as pd
-from concurrent.futures import ProcessPoolExecutor
-from tqdm import tqdm
-import logging
-
-# Configure logging
-logging.basicConfig(filename='consolidation_log.txt', level=logging.INFO)
-
-def consolidate_excel_files(root_folder):
-    try:
-        with ProcessPoolExecutor() as executor:
-            futures = []
-
-            for region_folder in os.listdir(root_folder):
-                region_path = os.path.join(root_folder, region_folder)
-                if os.path.isdir(region_path):
-                    futures.append(executor.submit(process_region, region_path))
-
-            # Wait for all tasks to complete
-            for future in tqdm(futures, desc="Regions", unit="region"):
-                future.result()
-
-        logging.info("Consolidation completed successfully.")
-
-    except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        print(f"An error occurred: {e}")
-
-def process_region(region_path):
-    try:
-        with ProcessPoolExecutor() as executor:
-            futures = []
-
-            for client_folder in os.listdir(region_path):
-                client_path = os.path.join(region_path, client_folder)
-                if os.path.isdir(client_path):
-                    futures.append(executor.submit(process_client, client_path))
-
-            # Wait for all tasks to complete
-            for future in tqdm(futures, desc="Clients", unit="client"):
-                future.result()
-
-    except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        print(f"An error occurred: {e}")
-
-def process_client(client_path):
-    try:
-        working_folder = os.path.join(client_path, 'Working Files')
-
-        if os.path.exists(working_folder):
-            files = [f for f in os.listdir(working_folder) if f.endswith('.xlsm')]
-            if files:
-                df_list = []
-
-                for file in files:
-                    file_path = os.path.join(working_folder, file)
-                    try:
-                        df = pd.read_excel(file_path, engine='openpyxl', usecols='A:Z')
-                        df['ClientFolder'] = os.path.basename(client_path)
-                        df['Region'] = os.path.basename(os.path.dirname(client_path))
-                        df_list.append(df)
-                    except pd.errors.ParserError as e:
-                        logging.warning(f"Skipping file {file_path}. Error: {e}")
-
-                if df_list:
-                    validate_columns(df_list)
-
-                    consolidated_df = pd.concat(df_list, ignore_index=True)
-                    desktop_path = os.path.join(os.path.expanduser("~"), 'Desktop')
-                    consolidated_file_path = os.path.join(desktop_path, 'consolidated_partial.xlsx')
-                    consolidated_df.to_excel(consolidated_file_path, index=False, engine='openpyxl')
-                    print(f"Consolidated {len(df_list)} files in {client_path}. Saved to {consolidated_file_path}")
-
-                else:
-                    print(f"No valid Excel files found in {working_folder}")
-
-    except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        print(f"An error occurred: {e}")
-
-def validate_columns(df_list):
-    num_columns = len(df_list[0].columns)
-    for df in df_list[1:]:
-        if len(df.columns) != num_columns:
-            logging.warning("Number of columns in Excel files does not match. Skipping file.")
-            raise ValueError("Number of columns in Excel files does not match.")
-
-# Specify the root folder containing region folders
-root_folder = '/path/to/BV Documents'
-
-# Run the consolidation
-consolidate_excel_files(root_folder)
-
-import os
-import pandas as pd
-from tqdm import tqdm
-
-def get_all_file_paths(root_folder):
-    file_paths = []
-
-    for region_folder in os.listdir(root_folder):
-        region_path = os.path.join(root_folder, region_folder)
-        if os.path.isdir(region_path):
-            for client_folder in os.listdir(region_path):
-                client_path = os.path.join(region_path, client_folder)
-                if os.path.isdir(client_path):
-                    working_folder = os.path.join(client_path, 'Working Files')
-                    if os.path.exists(working_folder):
-                        files = [f for f in os.listdir(working_folder) if f.endswith('.xlsm')]
-                        file_paths.extend([os.path.join(working_folder, file) for file in files])
-
-    return file_paths
-
-def consolidate_files(file_paths):
-    try:
-        df_list = []
-
-        for file_path in tqdm(file_paths, desc="Consolidating Files", unit="file"):
-            try:
-                df = pd.read_excel(file_path, engine='openpyxl', usecols='A:Z', skiprows=7)
-                df['ClientFolder'] = os.path.basename(os.path.dirname(os.path.dirname(file_path)))
-                df['Region'] = os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(file_path))))
-                df_list.append(df)
-            except pd.errors.ParserError as e:
-                print(f"Skipping file {file_path}. Error: {e}")
-
-        if df_list:
-            validate_columns(df_list)
-
-            consolidated_df = pd.concat(df_list, ignore_index=True)
-            desktop_path = os.path.join(os.path.expanduser("~"), 'Desktop')
-            consolidated_file_path = os.path.join(desktop_path, 'consolidated_partial.xlsx')
-            consolidated_df.to_excel(consolidated_file_path, index=False, engine='openpyxl')
-            print(f"Consolidated {len(df_list)} files. Saved to {consolidated_file_path}")
-
-        else:
-            print("No valid Excel files found.")
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-def validate_columns(df_list):
-    num_columns = len(df_list[0].columns)
-    for df in df_list[1:]:
-        if len(df.columns) != num_columns:
-            print("Number of columns in Excel files does not match. Skipping file.")
-            raise ValueError("Number of columns in Excel files does not match.")
-
-# Specify the root folder containing region folders
-root_folder = '/path/to/BV Documents'
-
-# Get all file paths
-all_file_paths = get_all_file_paths(root_folder)
-
-# Run the consolidation
-consolidate_files(all_file_paths)
-
-import os
-import pandas as pd
-from tqdm import tqdm
-
-def get_all_file_paths(root_folder):
-    file_paths = []
-
-    for region_folder in os.listdir(root_folder):
-        region_path = os.path.join(root_folder, region_folder)
-        if os.path.isdir(region_path):
-            for client_folder in os.listdir(region_path):
-                client_path = os.path.join(region_path, client_folder)
-                if os.path.isdir(client_path):
-                    working_folder = os.path.join(client_path, 'Working Files')
-                    if os.path.exists(working_folder):
-                        files = [f for f in os.listdir(working_folder) if f.endswith('.xlsm')]
-                        file_paths.extend([os.path.join(working_folder, file) for file in files])
-
-    return file_paths
-
-def consolidate_files(file_paths, save_every=50):
-    try:
-        df_list = []
-
-        for i, file_path in enumerate(tqdm(file_paths, desc="Consolidating Files", unit="file")):
-            try:
-                # Read data from Sheet2
-                df = pd.read_excel(file_path, engine='openpyxl', usecols='A:Z', skiprows=7, sheet_name='Sheet2')
-                df['ClientFolder'] = os.path.basename(os.path.dirname(os.path.dirname(file_path)))
-                df['Region'] = os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(file_path))))
-                df_list.append(df)
-            except pd.errors.ParserError as e:
-                print(f"Skipping file {file_path}. Error: {e}")
-
-            # Save the consolidated file every 50 iterations
-            if (i + 1) % save_every == 0 or (i + 1) == len(file_paths):
-                save_consolidated_file(df_list, i + 1)
-
-        print("Consolidation completed successfully.")
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-def save_consolidated_file(df_list, iteration):
-    try:
-        if df_list:
-            validate_columns(df_list)
-
-            consolidated_df = pd.concat(df_list, ignore_index=True)
-            desktop_path = os.path.join(os.path.expanduser("~"), 'Desktop')
-            consolidated_file_path = os.path.join(desktop_path, f'consolidated_partial_{iteration}.xlsx')
-            consolidated_df.to_excel(consolidated_file_path, index=False, engine='openpyxl')
-            print(f"Consolidated {len(df_list)} files. Saved to {consolidated_file_path}")
-
-        else:
-            print("No valid Excel files found.")
-
-    except Exception as e:
-        print(f"An error occurred while saving consolidated file: {e}")
-
-def validate_columns(df_list):
-    num_columns = len(df_list[0].columns)
-    for df in df_list[1:]:
-        if len(df.columns) != num_columns:
-            print("Number of columns in Excel files does not match. Skipping file.")
-            raise ValueError("Number of columns in Excel files does not match.")
-
-# Specify the root folder containing region folders
-root_folder = '/path/to/BV Documents'
-
-# Get all file paths
-all_file_paths = get_all_file_paths(root_folder)
-
-# Run the consolidation
-consolidate_files(all_file_paths, save_every=50)
-
-
-import os
-import pandas as pd
-from tqdm import tqdm
-
-def get_all_file_paths(root_folder):
-    file_paths = []
-
-    for region_folder in os.listdir(root_folder):
-        region_path = os.path.join(root_folder, region_folder)
-        if os.path.isdir(region_path):
-            for client_folder in os.listdir(region_path):
-                client_path = os.path.join(region_path, client_folder)
-                if os.path.isdir(client_path):
-                    working_folder = os.path.join(client_path, 'Working Files')
-                    if os.path.exists(working_folder):
-                        files = [f for f in os.listdir(working_folder) if f.endswith('.xlsm') and '~$' not in f]
-                        file_paths.extend([os.path.join(working_folder, file) for file in files])
-
-    return file_paths
-
-def consolidate_files(file_paths, save_every=50):
-    try:
-        df_list = []
-
-        for i, file_path in enumerate(tqdm(file_paths, desc="Consolidating Files", unit="file")):
-            try:
-                # Read data from Sheet2
-                df = pd.read_excel(file_path, engine='openpyxl', usecols='A:Z', skiprows=7, sheet_name='Sheet2')
-                df['ClientFolder'] = os.path.basename(os.path.dirname(os.path.dirname(file_path)))
-                df['Region'] = os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(file_path))))
-                df_list.append(df)
-            except Exception as e:
-                print(f"Error processing file {file_path}: {e}")
-
-            # Save the consolidated file every 50 iterations
-            if (i + 1) % save_every == 0 or (i + 1) == len(file_paths):
-                save_consolidated_file(df_list, i + 1)
-
-        print("Consolidation completed successfully.")
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-def save_consolidated_file(df_list, iteration):
-    try:
-        if df_list:
-            validate_columns(df_list)
-
-            consolidated_df = pd.concat(df_list, ignore_index=True)
-            desktop_path = os.path.join(os.path.expanduser("~"), 'Desktop')
-            consolidated_file_path = os.path.join(desktop_path, f'consolidated_partial_{iteration}.xlsx')
-            consolidated_df.to_excel(consolidated_file_path, index=False, engine='openpyxl')
-            print(f"Consolidated {len(df_list)} files. Saved to {consolidated_file_path}")
-
-        else:
-            print("No valid Excel files found.")
-
-    except Exception as e:
-        print(f"An error occurred while saving consolidated file: {e}")
-
-def validate_columns(df_list):
-    num_columns = len(df_list[0].columns)
-    for df in df_list[1:]:
-        if len(df.columns) != num_columns:
-            print("Number of columns in Excel files does not match. Skipping file.")
-            raise ValueError("Number of columns in Excel files does not match.")
-
-# Specify the root folder containing region folders
-root_folder = '/path/to/BV Documents'
-
-# Get all file paths
-all_file_paths = get_all_file_paths(root_folder)
-
-# Run the consolidation
-consolidate_files(all_file_paths, save_every=50)
+Tableau surpasses Cognos as an analysis tool due to its high interactivity. The ease of selecting and filtering fields facilitates dynamic exploration, enabling users to view diverse cuts and segments. Detailed-level comparisons help cross-check anomalies for more accurate insights.
+Visual Storytelling and Dashboard Creation:
+
+Similar to Excel and PowerPoint, Tableau empowers users to create engaging stories and dashboards. The ability to build pivots, charts, and diagrams within a unified dashboard simplifies visualization. Refreshing data updates the numbers seamlessly.
+Formula-Based Field Addition:
+
+Tableau allows the addition of fields based on formulas (e.g., count, sum, if), reducing manual intervention and minimizing errors in analytical processes.
+Efficient Manual Mapping:
+
+Manual mapping for set logics or reference data can be performed via Excel. Once the logic is set up, updating values for new combinations becomes a straightforward process.
+Cons:
+
+Licensing Restrictions:
+
+A drawback of Tableau is the licensing requirement. Users need at least a view-only license to access dashboards and reports.
+Integration Challenges:
+
+Integrating Tableau may pose challenges, requiring data source integration, creating packages, and data migration by the IT team. This process could take anywhere between 3 to 6 months.
+Complex Model Performance:
+
+Building complex models and logics, such as multiple ifs or nested counts, based on multiple columns can be difficult and may lead to application slowdowns.
+Excel Export Limitations:
+
+Data exported from Tableau to Excel lacks formatting, necessitating additional efforts to clean and reformat the data for reporting.
+Lack of Auto-Save Feature:
+
+Reports in Tableau do not auto-save, posing a risk of losing changes if the tab is closed or the server is disconnected.
+Training Requirements:
+
+Users must undergo training for each field and measure in Tableau to understand how their selections could impact the report and results.
+Absence of Email Alerts:
+
+Tableau does not support email alerts, which may be a limitation for teams relying on automated alerting systems.
+Recommendations:
+
+Conduct Thorough Training: Prioritize comprehensive training for users to maximize Tableau's capabilities and minimize challenges.
+
+Plan for Integration: Plan and coordinate closely with the IT team for seamless integration, considering the time frame and potential challenges.
+
+Backup and Save Regularly: Encourage users to save their work regularly due to the absence of an auto-save feature.
+
+Evaluate Licensing Needs: Evaluate the organization's licensing needs and ensure alignment with user requirements.
+
+Explore Alternative Alerting Solutions: For email alerting needs, explore alternative solutions or integrations that can complement Tableau's capabilities.
+
+Regularly Check for Updates: Stay informed about Tableau updates and implement them to benefit from new features and enhancements.
+
+Manage Excel Export Expectations: Manage expectations regarding Excel exports, emphasizing the need for additional data cleaning efforts.
+
+Monitor and Optimize Performance: Regularly monitor and optimize the performance of complex models to prevent application slowdowns.
+
