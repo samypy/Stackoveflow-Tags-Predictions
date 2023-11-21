@@ -105,3 +105,35 @@ for epoch in range(10):  # You might need to adjust the number of epochs
 
 # Save the trained model
 nlp.to_disk("path/to/your/custom_ner_name_model")
+
+import pandas as pd
+from reportlab.pdfgen import canvas
+
+def excel_to_pdf(input_excel, output_pdf):
+    # Read all sheets from Excel file
+    xls = pd.ExcelFile(input_excel)
+    
+    # Loop through each sheet and convert to PDF
+    for sheet_name in xls.sheet_names:
+        sheet_df = xls.parse(sheet_name)
+        
+        # Create PDF with sheet name
+        pdf_name = f"{sheet_name} - Readership.pdf"
+        pdf = canvas.Canvas(pdf_name)
+        
+        # Write dataframe to PDF
+        table_data = [sheet_df.columns] + sheet_df.values.tolist()
+        for row_num, row_data in enumerate(table_data):
+            for col_num, col_value in enumerate(row_data):
+                pdf.drawString(col_num * 100, 800 - row_num * 15, str(col_value))
+        
+        # Save PDF
+        pdf.save()
+
+if __name__ == "__main__":
+    input_excel_file = "your_input_excel.xlsx"
+    output_pdf_folder = "output_pdfs/"
+
+    # Convert each sheet to PDF
+    excel_to_pdf(input_excel_file, output_pdf_folder)
+
