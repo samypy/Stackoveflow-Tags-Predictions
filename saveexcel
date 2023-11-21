@@ -66,3 +66,42 @@ for epoch in range(10):  # You might need to adjust the number of epochs
 # Save the trained model
 nlp.to_disk("path/to/your/custom_ner_name_model")
 
+import pandas as pd
+import spacy
+from spacy.training.example import Example
+
+# Assuming your DataFrame is named 'df' with columns 'Name', 'Sentence', and 'Index'
+# Example data:
+# df = pd.DataFrame({'Name': ['John', 'Alice', 'Bob', 'Charlie'],
+#                    'Sentence': ['John is a programmer.', 'Alice likes coding.', 'Bob enjoys hiking.', 'Charlie and David are friends.'],
+#                    'Index': [(0, 3), (0, 5), (0, 2), (0, 7)]})
+
+# Load a blank English model
+nlp = spacy.blank("en")
+
+# Create a new entity label for custom person names
+ner = nlp.add_pipe("ner")
+
+# Convert DataFrame to spaCy training data format
+training_data = []
+
+for _, row in df.iterrows():
+    name, sentence, index = row['Name'], row['Sentence'], row['Index']
+    start, end = index
+
+    # Create a training example in spaCy format
+    example = Example.from_dict(nlp.make_doc(sentence), {"entities": [(start, end, "CUSTOM_PERSON")]})
+    training_data.append(example)
+
+# Define a callback to print training progress
+def print_progress(info, epoch, loss, scorer):
+    print(f"Epoch: {epoch}, Loss: {loss}, Progress: {info['progress']}")
+
+# Train the NER model with the callback
+nlp.begin_training(callback=print_progress)
+for epoch in range(10):  # You might need to adjust the number of epochs
+    for example in training_data:
+        nlp.update([example], drop=0.5)  # You can adjust the dropout rate
+
+# Save the trained model
+nlp.to_disk("path/to/your/custom_ner_name_model")
