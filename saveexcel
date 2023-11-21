@@ -1,53 +1,30 @@
-Enhanced Analytical Capabilities:
+import spacy
+from spacy.training.example import Example
 
-Tableau surpasses Cognos as an analysis tool due to its high interactivity. The ease of selecting and filtering fields facilitates dynamic exploration, enabling users to view diverse cuts and segments. Detailed-level comparisons help cross-check anomalies for more accurate insights.
-Visual Storytelling and Dashboard Creation:
+# Load a blank English model
+nlp = spacy.blank("en")
 
-Similar to Excel and PowerPoint, Tableau empowers users to create engaging stories and dashboards. The ability to build pivots, charts, and diagrams within a unified dashboard simplifies visualization. Refreshing data updates the numbers seamlessly.
-Formula-Based Field Addition:
+# Add a new entity label for custom person names
+nlp.add_pipe("ner", config={"labels": ["CUSTOM_PERSON"]})
 
-Tableau allows the addition of fields based on formulas (e.g., count, sum, if), reducing manual intervention and minimizing errors in analytical processes.
-Efficient Manual Mapping:
+# Define your training data
+# Example data format: (text, {"entities": [(start, end, "CUSTOM_PERSON")]})
+training_data = [
+    ("Jan did a great job but Sam needs improvement.", {"entities": [(0, 3, "CUSTOM_PERSON"), (28, 31, "CUSTOM_PERSON")]}),
+    # Add more examples as needed
+]
 
-Manual mapping for set logics or reference data can be performed via Excel. Once the logic is set up, updating values for new combinations becomes a straightforward process.
-Cons:
+# Convert training data to spaCy format
+examples = []
+for text, annotations in training_data:
+    example = Example.from_dict(nlp.make_doc(text), annotations)
+    examples.append(example)
 
-Licensing Restrictions:
+# Train the NER model
+nlp.begin_training()
+for epoch in range(10):  # You might need to adjust the number of epochs
+    for example in examples:
+        nlp.update([example], drop=0.5)  # You can adjust the dropout rate
 
-A drawback of Tableau is the licensing requirement. Users need at least a view-only license to access dashboards and reports.
-Integration Challenges:
-
-Integrating Tableau may pose challenges, requiring data source integration, creating packages, and data migration by the IT team. This process could take anywhere between 3 to 6 months.
-Complex Model Performance:
-
-Building complex models and logics, such as multiple ifs or nested counts, based on multiple columns can be difficult and may lead to application slowdowns.
-Excel Export Limitations:
-
-Data exported from Tableau to Excel lacks formatting, necessitating additional efforts to clean and reformat the data for reporting.
-Lack of Auto-Save Feature:
-
-Reports in Tableau do not auto-save, posing a risk of losing changes if the tab is closed or the server is disconnected.
-Training Requirements:
-
-Users must undergo training for each field and measure in Tableau to understand how their selections could impact the report and results.
-Absence of Email Alerts:
-
-Tableau does not support email alerts, which may be a limitation for teams relying on automated alerting systems.
-Recommendations:
-
-Conduct Thorough Training: Prioritize comprehensive training for users to maximize Tableau's capabilities and minimize challenges.
-
-Plan for Integration: Plan and coordinate closely with the IT team for seamless integration, considering the time frame and potential challenges.
-
-Backup and Save Regularly: Encourage users to save their work regularly due to the absence of an auto-save feature.
-
-Evaluate Licensing Needs: Evaluate the organization's licensing needs and ensure alignment with user requirements.
-
-Explore Alternative Alerting Solutions: For email alerting needs, explore alternative solutions or integrations that can complement Tableau's capabilities.
-
-Regularly Check for Updates: Stay informed about Tableau updates and implement them to benefit from new features and enhancements.
-
-Manage Excel Export Expectations: Manage expectations regarding Excel exports, emphasizing the need for additional data cleaning efforts.
-
-Monitor and Optimize Performance: Regularly monitor and optimize the performance of complex models to prevent application slowdowns.
-
+# Save the trained model
+nlp.to_disk("path/to/your/custom_ner_model")
