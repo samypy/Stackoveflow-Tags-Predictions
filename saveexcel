@@ -217,3 +217,50 @@ if __name__ == "__main__":
     # Convert each sheet to PDF
     excel_to_pdf(input_excel_file, output_pdf_folder)
 
+import pandas as pd
+from fpdf import FPDF
+
+def excel_to_pdf(input_excel, output_pdf_folder):
+    xls = pd.ExcelFile(input_excel)
+
+    for sheet_name in xls.sheet_names:
+        sheet_df = xls.parse(sheet_name)
+
+        # Create PDF with sheet name
+        pdf_name = f"{output_pdf_folder}{sheet_name} - Readership.pdf"
+        pdf = FPDF()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        
+        # Add sheet name as a header
+        pdf.cell(200, 10, txt=f"{sheet_name} - Readership", ln=True, align='C')
+
+        # Add dataframe as a table
+        col_widths = [pdf.get_string_width(str(col)) for col in sheet_df.columns]
+        max_width = max(col_widths)
+        
+        for i, col in enumerate(sheet_df.columns):
+            pdf.cell(max_width + 6, 10, txt=str(col), border=1)
+        
+        pdf.ln()
+        
+        for _, row in sheet_df.iterrows():
+            for col in sheet_df.columns:
+                pdf.cell(max_width + 6, 10, txt=str(row[col]), border=1)
+            pdf.ln()
+
+        # Save PDF with explicit encoding (utf-8)
+        with open(pdf_name, "wb") as file:
+            pdf.output(file)
+
+if __name__ == "__main__":
+    input_excel_file = "your_input_excel.xlsx"
+    output_pdf_folder = "output_pdfs/"
+
+    # Ensure the output folder exists
+    import os
+    os.makedirs(output_pdf_folder, exist_ok=True)
+
+    # Convert each sheet to PDF
+    excel_to_pdf(input_excel_file, output_pdf_folder)
