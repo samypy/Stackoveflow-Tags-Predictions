@@ -264,3 +264,24 @@ if __name__ == "__main__":
 
     # Convert each sheet to PDF
     excel_to_pdf(input_excel_file, output_pdf_folder)
+
+
+Sub ExportSheetsToPDF()
+    Dim ws As Worksheet
+    Dim savePath As String
+    
+    ' Set the folder path where PDFs will be saved
+    savePath = "C:\Your\Output\Folder\"
+    
+    ' Loop through each sheet
+    For Each ws In ThisWorkbook.Sheets
+        ' Activate the sheet
+        ws.Activate
+        
+        ' Construct the PDF file name based on the sheet name
+        pdfFileName = savePath & ws.Name & " - Readership.pdf"
+        
+        ' Export the active sheet to PDF
+        ActiveSheet.ExportAsFixedFormat Type:=xlTypePDF, Filename:=pdfFileName, Quality:=xlQualityStandard
+    Next ws
+End Sub
