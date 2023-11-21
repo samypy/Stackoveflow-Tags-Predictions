@@ -28,3 +28,41 @@ for epoch in range(10):  # You might need to adjust the number of epochs
 
 # Save the trained model
 nlp.to_disk("path/to/your/custom_ner_model")
+
+import pandas as pd
+import spacy
+from spacy.training.example import Example
+
+# Assuming your DataFrame is named 'df' with columns 'Name', 'Sentence', and 'Index'
+# Example data:
+# df = pd.DataFrame({'Name': ['John', 'Alice', 'Bob', 'Charlie'],
+#                    'Sentence': ['John is a programmer.', 'Alice likes coding.', 'Bob enjoys hiking.', 'Charlie and David are friends.'],
+#                    'Index': [(0, 3), (0, 5), (0, 2), (0, 7)]})
+
+# Load a blank English model
+nlp = spacy.blank("en")
+
+# Add a new entity label for custom person names
+nlp.add_pipe("ner", config={"labels": ["CUSTOM_PERSON"]})
+
+# Convert DataFrame to spaCy training data format
+training_data = []
+
+for _, row in df.iterrows():
+    name = row['Name']
+    sentence = row['Sentence']
+    start, end = row['Index']
+
+    # Create a training example in spaCy format
+    example = Example.from_dict(nlp.make_doc(sentence), {"entities": [(start, end, "CUSTOM_PERSON")]})
+    training_data.append(example)
+
+# Train the NER model
+nlp.begin_training()
+for epoch in range(10):  # You might need to adjust the number of epochs
+    for example in training_data:
+        nlp.update([example], drop=0.5)  # You can adjust the dropout rate
+
+# Save the trained model
+nlp.to_disk("path/to/your/custom_ner_name_model")
+
