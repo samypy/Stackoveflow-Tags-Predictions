@@ -285,3 +285,17 @@ Sub ExportSheetsToPDF()
         ActiveSheet.ExportAsFixedFormat Type:=xlTypePDF, Filename:=pdfFileName, Quality:=xlQualityStandard
     Next ws
 End Sub
+
+
+
+import re
+
+def remove_special_characters(text):
+    # Replace all special characters except commas and full stops
+    cleaned_text = re.sub(r'[^a-zA-Z0-9,.\s]', '', text)
+    return cleaned_text
+
+# Example usage:
+input_text = "This is a sample text with @special characters! Don't remove the comma, and the period."
+result = remove_special_characters(input_text)
+print(result)
