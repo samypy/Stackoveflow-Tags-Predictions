@@ -336,3 +336,52 @@ for _, annotations in training_data:
 
 # Save the trained model
 nlp.to_disk("/path/to/your/ner_model")
+
+
+import pandas as pd
+import spacy
+from spacy.training.example import Example
+
+# Assuming df is your DataFrame with columns Sentence, Name, and Index
+# Sample DataFrame creation
+data = {'Sentence': ['This is a sample sentence.', 'Another example sentence.'],
+        'Name': ['John, Jane', 'Bob'],
+        'Index': ['0, 4, 9, 13, 18, 22', '0, 3']}
+df = pd.DataFrame(data)
+
+# Load spaCy model
+nlp = spacy.blank("en")
+
+# Prepare training data
+training_data = []
+for _, row in df.iterrows():
+    sentence = row['Sentence']
+    names = row['Name'].split(', ')
+    indices = [int(index) for index in row['Index'].split(', ')]
+    
+    entities = []
+    for name in names:
+        for start, end in zip(indices[::2], indices[1::2]):
+            entities.append((start, end, 'PERSON'))  # Adjust the label as needed
+    
+    training_data.append((sentence, {'entities': entities}))
+
+# Aggregate entities for each sentence
+aggregated_training_data = {}
+for sentence, entities in training_data:
+    if sentence in aggregated_training_data:
+        aggregated_training_data[sentence]['entities'].extend(entities['entities'])
+    else:
+        aggregated_training_data[sentence] = entities
+
+# Convert aggregated data to list
+final_training_data = [(sentence, entities) for sentence, entities in aggregated_training_data.items()]
+
+# Train the NER model
+ner = nlp.get_pipe('ner')
+for sentence, annotations in final_training_data:
+    example = Example.from_dict(nlp.make_doc(sentence), annotations)
+    ner.update([example])
+
+# Save the trained model
+nlp.to_disk("/path/to/your/ner_model")
