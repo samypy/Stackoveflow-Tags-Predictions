@@ -482,4 +482,35 @@ keywords = re.findall(keyword_pattern, sentence)
 
 # Print the extracted keywords
 print("Extracted Keywords:", keywords)
+import re
+
+def extract_feedback(sentence, person_names):
+    feedback_dict = {}
+
+    for person_name in person_names:
+        # Create a regular expression pattern for the feedback mentioning the person
+        pattern = re.compile(fr'\b{re.escape(person_name)}\b:\s*([^\.,]+)', re.IGNORECASE)
+
+        # Find the match in the sentence
+        match = pattern.search(sentence)
+
+        # If a match is found, extract the feedback
+        if match:
+            feedback = match.group(1).strip()
+            feedback_dict[person_name] = feedback
+
+    return feedback_dict
+
+# Example sentence
+example_sentence = "Great work Sameer but Jubel needs improvement."
+
+# List of person names
+person_names = ["Sameer", "Jubel"]
+
+# Extract feedback for each person
+result = extract_feedback(example_sentence, person_names)
+
+# Print the result
+for person_name, feedback in result.items():
+    print(f"{person_name}: {feedback}")
 
