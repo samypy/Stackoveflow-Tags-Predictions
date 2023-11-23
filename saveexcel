@@ -435,3 +435,36 @@ employee_ids = [employee_id_mapping.get(name, "Not found") for name in full_name
 # Print the extracted names and corresponding employee IDs
 for name, employee_id in zip(full_names, employee_ids):
     print(f"Name: {name}, Employee ID: {employee_id}")
+
+
+import re
+
+def extract_names_and_employee_ids(sentence, name_database):
+    # Regular expression to match full names
+    full_name_pattern = re.compile(r'\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)\b')
+
+    # Extract full names from the sentence
+    full_names = re.findall(full_name_pattern, sentence)
+
+    # Look up employee IDs for each extracted name
+    name_employee_id_pairs = [(name, name_database.get(name, "Not found")) for name in full_names if name in name_database]
+
+    return name_employee_id_pairs
+
+# Sample data: Key-value pair of names and employee IDs
+employee_id_mapping = {
+    "John Doe": "JD123",
+    "Jane Smith": "JS456",
+    "Alice Johnson": "AJ789",
+    # Add more entries as needed
+}
+
+# Example sentence
+example_sentence = "John Doe and Jane Smith are working together."
+
+# Call the function
+result = extract_names_and_employee_ids(example_sentence, employee_id_mapping)
+
+# Print the result
+for name, employee_id in result:
+    print(f"Name: {name}, Employee ID: {employee_id}")
