@@ -409,3 +409,29 @@ result = find_keywords(example_sentence, example_keywords)
 
 # Print the result
 print("Matched Keywords:", result)
+
+import re
+
+# Sample data: Key-value pair of names and employee IDs
+employee_id_mapping = {
+    "John Doe": "JD123",
+    "Jane Smith": "JS456",
+    "Alice Johnson": "AJ789",
+    # Add more entries as needed
+}
+
+# Example sentence
+sentence = "John Doe and Jane Smith are working together."
+
+# Regular expression to match full names
+full_name_pattern = re.compile(r'\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)\b')
+
+# Extract full names from the sentence
+full_names = re.findall(full_name_pattern, sentence)
+
+# Look up employee IDs for each extracted name
+employee_ids = [employee_id_mapping.get(name, "Not found") for name in full_names]
+
+# Print the extracted names and corresponding employee IDs
+for name, employee_id in zip(full_names, employee_ids):
+    print(f"Name: {name}, Employee ID: {employee_id}")
