@@ -468,3 +468,18 @@ result = extract_names_and_employee_ids(example_sentence, employee_id_mapping)
 # Print the result
 for name, employee_id in result:
     print(f"Name: {name}, Employee ID: {employee_id}")
+
+import re
+
+# Example sentence
+sentence = "The service was great, very helpful. However, the response was slow."
+
+# Define a regular expression pattern for the keywords
+keyword_pattern = re.compile(r'\b(?:great|helpful|Not great|slow response)\b', re.IGNORECASE)
+
+# Extract keywords from the sentence
+keywords = re.findall(keyword_pattern, sentence)
+
+# Print the extracted keywords
+print("Extracted Keywords:", keywords)
+
