@@ -385,3 +385,27 @@ for sentence, annotations in final_training_data:
 
 # Save the trained model
 nlp.to_disk("/path/to/your/ner_model")
+
+
+from fuzzywuzzy import process
+
+def find_keywords(sentence, keyword_list, threshold=80):
+    # Use fuzzywuzzy's process function to find best matches
+    matches = process.extractBests(sentence, keyword_list, score_cutoff=threshold)
+
+    # Extract matched keywords
+    matched_keywords = [match[0] for match in matches]
+
+    return matched_keywords
+
+# Example sentence
+example_sentence = "The quick brown fox jumped over the lazy dog."
+
+# Example list of keywords
+example_keywords = ["fox", "lazy", "cat", "quick"]
+
+# Find keywords in the sentence
+result = find_keywords(example_sentence, example_keywords)
+
+# Print the result
+print("Matched Keywords:", result)
