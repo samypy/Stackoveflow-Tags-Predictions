@@ -911,3 +911,41 @@ corrected_sentence = correct_punctuations(original_sentence)
 
 print(f"Original Sentence: {original_sentence}")
 print(f"Corrected Sentence: {corrected_sentence}")
+
+Sure, you can use the VADER (Valence Aware Dictionary and sEntiment Reasoner) model for sentiment analysis using the `nltk` library. Make sure to install `nltk` if you haven't already:
+
+```bash
+pip install nltk
+```
+
+Here's a simple example code:
+
+```python
+from nltk.sentiment import SentimentIntensityAnalyzer
+
+def analyze_sentiment(text):
+    analyzer = SentimentIntensityAnalyzer()
+    sentiment_scores = analyzer.polarity_scores(text)
+
+    # The compound score is a combination of positive, negative, and neutral scores
+    compound_score = sentiment_scores['compound']
+
+    # Classify the sentiment based on the compound score
+    if compound_score >= 0.05:
+        sentiment = 'positive'
+    elif compound_score <= -0.05:
+        sentiment = 'negative'
+    else:
+        sentiment = 'neutral'
+
+    return sentiment
+
+# Example usage
+text = "I love using VADER for sentiment analysis. It's awesome!"
+result = analyze_sentiment(text)
+print(f"Sentiment: {result}")
+```
+
+This example uses the `SentimentIntensityAnalyzer` from `nltk` to analyze the sentiment of a given text. It calculates a compound score and then classifies the sentiment as positive, negative, or neutral based on that score.
+
+Note: VADER is particularly well-suited for analyzing sentiment in short and informal texts, such as those found in social media. Keep in mind that the performance may vary depending on the characteristics of your specific data.
