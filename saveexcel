@@ -854,3 +854,5 @@ for feedback in feedbacks:
     for result in results:
         name, employee_id, feedback_keyword, actual_feedback, sentiment = result
         print(f"Name: {name}, Employee ID: {employee_id}, Feedback Keyword: {feedback_keyword}, Feedback: {actual_feedback}, Sentiment: {sentiment}")
+
+name_pattern = r'\b(?:' + '|'.join(re.escape(name) for name in name_database.keys()) + r')\b'
