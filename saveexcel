@@ -514,3 +514,75 @@ result = extract_feedback(example_sentence, person_names)
 for person_name, feedback in result.items():
     print(f"{person_name}: {feedback}")
 
+
+import re
+
+def calculate_feedback_types(feedbacks):
+    # Your regex patterns
+    name_pattern = r'(John|Alice|Bob|Charlie|Susan)'
+    positive_pattern = r'(great|excellent|positive)'
+    negative_pattern = r'(poor|needs improvement|negative)'
+
+    # Function to calculate distance between two positions
+    def calculate_distance(position1, position2):
+        return abs(position1 - position2)
+
+    # Function to segment sentences using pause-indicating words
+    def segment_sentences(text):
+        pause_words = ['fullstop', 'however', 'but', 'although']  # Add more as needed
+        sentence_segments = re.split(r'\b(?:{})\b'.format('|'.join(pause_words)), text, flags=re.IGNORECASE)
+        return [segment.strip() for segment in sentence_segments if segment.strip()]
+
+    # Initialize data structure to store feedback types for each person
+    feedback_types_by_person = {}
+
+    # Iterate through feedbacks and extract information
+    for feedback in feedbacks:
+        # Segment sentences
+        segments = segment_sentences(feedback)
+
+        # Extract names and their positions for each segment
+        for segment in segments:
+            name_matches = re.finditer(name_pattern, segment, re.IGNORECASE)
+            names_positions = [(match.group(), match.start()) for match in name_matches]
+
+            # Extract positions of positive and negative keywords for each segment
+            positive_matches = re.finditer(positive_pattern, segment, re.IGNORECASE)
+            negative_matches = re.finditer(negative_pattern, segment, re.IGNORECASE)
+
+            positive_positions = [match.start() for match in positive_matches]
+            negative_positions = [match.start() for match in negative_matches]
+
+            # Calculate distances and find closest keyword for each person in each segment
+            for name, name_position in names_positions:
+                distances_to_positive = [calculate_distance(name_position, pos) for pos in positive_positions]
+                distances_to_negative = [calculate_distance(name_position, pos) for pos in negative_positions]
+
+                closest_positive_index = distances_to_positive.index(min(distances_to_positive)) if distances_to_positive else None
+                closest_negative_index = distances_to_negative.index(min(distances_to_negative)) if distances_to_negative else None
+
+                closest_positive = "Positive" if closest_positive_index is not None else None
+                closest_negative = "Negative" if closest_negative_index is not None else None
+
+                # Store feedback type in the data structure for each person in each segment
+                if name not in feedback_types_by_person:
+                    feedback_types_by_person[name] = []
+
+                if closest_positive is not None:
+                    feedback_types_by_person[name].append(closest_positive)
+                if closest_negative is not None:
+                    feedback_types_by_person[name].append(closest_negative)
+
+    return feedback_types_by_person
+
+# Sample feedbacks
+feedbacks = [
+    "John and Alice did a great job! However, Bob's performance was poor. Needs improvement.",
+    "Charlie received positive feedback for his excellent work, but Susan needs improvement."
+]
+
+# Call the function and print the results
+result = calculate_feedback_types(feedbacks)
+for person, feedback_types in result.items():
+    print(f"{person}'s Feedback Types: {', '.join(feedback_types)}")
+
