@@ -899,3 +899,15 @@ for feedback in feedbacks:
         name, employee_id, feedback_keyword, actual_feedback, sentiment = result
         print(f"Name: {name}, Employee ID: {employee_id}, Feedback Keyword: {feedback_keyword}, Feedback: {actual_feedback}, Sentiment: {sentiment}")
 
+from punctuation_standardizer import standardize_punctuation
+
+def correct_punctuations(sentence):
+    corrected_sentence = standardize_punctuation(sentence)
+    return corrected_sentence
+
+# Example usage
+original_sentence = "This is a sentence with some... misplaced punctuations!!"
+corrected_sentence = correct_punctuations(original_sentence)
+
+print(f"Original Sentence: {original_sentence}")
+print(f"Corrected Sentence: {corrected_sentence}")
