@@ -856,3 +856,46 @@ for feedback in feedbacks:
         print(f"Name: {name}, Employee ID: {employee_id}, Feedback Keyword: {feedback_keyword}, Feedback: {actual_feedback}, Sentiment: {sentiment}")
 
 name_pattern = r'\b(?:' + '|'.join(re.escape(name) for name in name_database.keys()) + r')\b'
+
+
+import re
+from textblob import TextBlob
+
+def calculate_distance(position1, position2):
+    return abs(position1 - position2)
+
+def analyze_feedback_sentiment(feedback):
+    analysis = TextBlob(feedback)
+    return "Positive" if analysis.sentiment.polarity > 0 else "Negative" if analysis.sentiment.polarity < 0 else "Neutral"
+
+def segment_sentence(text, pause_words):
+    # Escape the period in pause words
+    escaped_pause_words = [re.escape(word) for word in pause_words]
+    pattern = r'\b(?:{})\b'.format('|'.join(escaped_pause_words))
+    
+    sentence_segments = re.split(pattern, text, flags=re.IGNORECASE)
+    return [segment.strip() for segment in sentence_segments if segment.strip()]
+
+def extract_feedback_information(segment, name_database):
+    # ... (unchanged)
+
+def analyze_feedback(feedback, name_database, pause_words):
+    segments = segment_sentence(feedback, pause_words)
+    all_results = []
+
+    for segment in segments:
+        results = extract_feedback_information(segment, name_database)
+        if results:
+            all_results.extend(results)
+
+    return all_results
+
+# Sample name database, feedbacks, and pause words remain the same
+
+# Analyze feedback for each segment
+for feedback in feedbacks:
+    results = analyze_feedback(feedback, name_database, pause_words)
+    for result in results:
+        name, employee_id, feedback_keyword, actual_feedback, sentiment = result
+        print(f"Name: {name}, Employee ID: {employee_id}, Feedback Keyword: {feedback_keyword}, Feedback: {actual_feedback}, Sentiment: {sentiment}")
+
