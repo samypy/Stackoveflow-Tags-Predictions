@@ -586,3 +586,27 @@ result = calculate_feedback_types(feedbacks)
 for person, feedback_types in result.items():
     print(f"{person}'s Feedback Types: {', '.join(feedback_types)}")
 
+nevertheless
+nonetheless
+on the other hand
+on the contrary
+in contrast
+even so
+still
+yet
+meanwhile
+afterward
+subsequently
+eventually
+consequently
+therefore
+thus
+moreover
+furthermore
+additionally
+besides
+similarly
+likewise
+in conclusion
+to summarize
+These words can be used to identify potential breaks or transitions in sentences 
