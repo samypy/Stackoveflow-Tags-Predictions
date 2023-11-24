@@ -610,3 +610,71 @@ likewise
 in conclusion
 to summarize
 These words can be used to identify potential breaks or transitions in sentences 
+
+
+
+import re
+from textblob import TextBlob
+
+def calculate_distance(position1, position2):
+    return abs(position1 - position2)
+
+def analyze_feedback_sentiment(feedback):
+    analysis = TextBlob(feedback)
+    return "Positive" if analysis.sentiment.polarity > 0 else "Negative" if analysis.sentiment.polarity < 0 else "Neutral"
+
+def extract_feedback_information(feedback, name_database):
+    name_pattern = r'\b(?:' + '|'.join(name_database.keys()) + r')\b'
+    positive_pattern = r'\b(?:great|excellent|positive)\b'
+    negative_pattern = r'\b(?:poor|needs improvement|negative)\b'
+    pause_words = ['fullstop', 'however', 'but', 'although']  # Add more as needed
+
+    name_matches = re.finditer(name_pattern, feedback, re.IGNORECASE)
+    names_positions = [(match.group(), match.start()) for match in name_matches]
+
+    positive_matches = re.finditer(positive_pattern, feedback, re.IGNORECASE)
+    negative_matches = re.finditer(negative_pattern, feedback, re.IGNORECASE)
+
+    positive_positions = [match.start() for match in positive_matches]
+    negative_positions = [match.start() for match in negative_matches]
+
+    for name, name_position in names_positions:
+        distances_to_positive = [calculate_distance(name_position, pos) for pos in positive_positions]
+        distances_to_negative = [calculate_distance(name_position, pos) for pos in negative_positions]
+
+        closest_positive_index = distances_to_positive.index(min(distances_to_positive)) if distances_to_positive else None
+        closest_negative_index = distances_to_negative.index(min(distances_to_negative)) if distances_to_negative else None
+
+        closest_positive = "Positive" if closest_positive_index is not None else None
+        closest_negative = "Negative" if closest_negative_index is not None else None
+
+        if closest_positive is not None:
+            feedback_keyword = "positive"
+            sentiment = analyze_feedback_sentiment(feedback)
+            return name, name_database.get(name, ""), feedback_keyword, feedback, sentiment
+        elif closest_negative is not None:
+            feedback_keyword = "negative"
+            sentiment = analyze_feedback_sentiment(feedback)
+            return name, name_database.get(name, ""), feedback_keyword, feedback, sentiment
+
+    return None  # No matching feedback found
+
+# Sample name database
+name_database = {
+    "John": "ID123",
+    "Alice": "ID456",
+    "Bob": "ID789"
+}
+
+# Sample feedbacks
+feedbacks = [
+    "John did a great job! However, Alice's performance needs improvement.",
+    "Bob received positive feedback for his excellent work."
+]
+
+# Analyze feedback for each person
+for feedback in feedbacks:
+    result = extract_feedback_information(feedback, name_database)
+    if result:
+        name, employee_id, feedback_keyword, actual_feedback, sentiment = result
+        print(f"Name: {name}, Employee ID: {employee_id}, Feedback Keyword: {feedback_keyword}, Feedback: {actual_feedback}, Sentiment: {sentiment}")
