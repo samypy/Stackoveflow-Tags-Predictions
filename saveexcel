@@ -678,3 +678,94 @@ for feedback in feedbacks:
     if result:
         name, employee_id, feedback_keyword, actual_feedback, sentiment = result
         print(f"Name: {name}, Employee ID: {employee_id}, Feedback Keyword: {feedback_keyword}, Feedback: {actual_feedback}, Sentiment: {sentiment}")
+
+
+
+
+I apologize for the oversight. Let's enhance the code to break the sentence with pause words. We'll use a function to segment the sentence based on pause words and then analyze each segment for feedback information. Here's the updated code:
+
+```python
+import re
+from textblob import TextBlob
+
+def calculate_distance(position1, position2):
+    return abs(position1 - position2)
+
+def analyze_feedback_sentiment(feedback):
+    analysis = TextBlob(feedback)
+    return "Positive" if analysis.sentiment.polarity > 0 else "Negative" if analysis.sentiment.polarity < 0 else "Neutral"
+
+def segment_sentence(text, pause_words):
+    sentence_segments = re.split(r'\b(?:{})\b'.format('|'.join(pause_words)), text, flags=re.IGNORECASE)
+    return [segment.strip() for segment in sentence_segments if segment.strip()]
+
+def extract_feedback_information(segment, name_database):
+    name_pattern = r'\b(?:' + '|'.join(name_database.keys()) + r')\b'
+    positive_pattern = r'\b(?:great|excellent|positive)\b'
+    negative_pattern = r'\b(?:poor|needs improvement|negative)\b'
+
+    name_matches = re.finditer(name_pattern, segment, re.IGNORECASE)
+    names_positions = [(match.group(), match.start()) for match in name_matches]
+
+    positive_matches = re.finditer(positive_pattern, segment, re.IGNORECASE)
+    negative_matches = re.finditer(negative_pattern, segment, re.IGNORECASE)
+
+    positive_positions = [match.start() for match in positive_matches]
+    negative_positions = [match.start() for match in negative_matches]
+
+    for name, name_position in names_positions:
+        distances_to_positive = [calculate_distance(name_position, pos) for pos in positive_positions]
+        distances_to_negative = [calculate_distance(name_position, pos) for pos in negative_positions]
+
+        closest_positive_index = distances_to_positive.index(min(distances_to_positive)) if distances_to_positive else None
+        closest_negative_index = distances_to_negative.index(min(distances_to_negative)) if distances_to_negative else None
+
+        closest_positive = "Positive" if closest_positive_index is not None else None
+        closest_negative = "Negative" if closest_negative_index is not None else None
+
+        if closest_positive is not None:
+            feedback_keyword = "positive"
+            sentiment = analyze_feedback_sentiment(segment)
+            return name, name_database.get(name, ""), feedback_keyword, segment, sentiment
+        elif closest_negative is not None:
+            feedback_keyword = "negative"
+            sentiment = analyze_feedback_sentiment(segment)
+            return name, name_database.get(name, ""), feedback_keyword, segment, sentiment
+
+    return None  # No matching feedback found
+
+def analyze_feedback(feedback, name_database, pause_words):
+    segments = segment_sentence(feedback, pause_words)
+
+    for segment in segments:
+        result = extract_feedback_information(segment, name_database)
+        if result:
+            return result  # Return the first matching result
+
+    return None  # No matching feedback found
+
+# Sample name database
+name_database = {
+    "John": "ID123",
+    "Alice": "ID456",
+    "Bob": "ID789"
+}
+
+# Sample feedbacks
+feedbacks = [
+    "John did a great job! However, Alice's performance needs improvement.",
+    "Bob received positive feedback for his excellent work."
+]
+
+# Pause words
+pause_words = ['fullstop', 'however', 'but', 'although']
+
+# Analyze feedback for each person
+for feedback in feedbacks:
+    result = analyze_feedback(feedback, name_database, pause_words)
+    if result:
+        name, employee_id, feedback_keyword, actual_feedback, sentiment = result
+        print(f"Name: {name}, Employee ID: {employee_id}, Feedback Keyword: {feedback_keyword}, Feedback: {actual_feedback}, Sentiment: {sentiment}")
+```
+
+Now the code uses the `segment_sentence` function to split the sentence based on pause words, and then it analyzes each segment for feedback information. Adjust the `pause_words` list as needed for your use case.
